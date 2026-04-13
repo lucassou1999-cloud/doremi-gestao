@@ -331,7 +331,7 @@ function iniciarSync() {
 // DB HELPERS
 // ══════════════════════════════════
 function getAtivos() {
-  return Object.values(state.alunos).filter(a => a.status === 'Ativo');
+  return Object.values(state.alunos).filter(a => a.status === 'Ativo').sort((a,b) => a.nome.localeCompare(b.nome, 'pt-BR', {sensitivity:'base'}));
 }
 function getPagMes(mes) {
   return Object.values(state.pagamentos).filter(p => p.mes === mes);
@@ -495,7 +495,7 @@ let filtroAlunos = 'Ativo';
 function renderAlunos(c, tb) {
   if (tb) tb.innerHTML = '<span class="sync-badge"><span class="sync-dot"></span>Sincronizado</span><button class="btn btn-primary" onclick="abrirModalAluno(null)">+ Novo aluno</button>';
   const ativos = getAtivos();
-  const inativos = Object.values(state.alunos).filter(a=>a.status!=='Ativo');
+  const inativos = Object.values(state.alunos).filter(a=>a.status!=='Ativo').sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{sensitivity:'base'}));
   c.innerHTML = `
   <div class="tabs">
     <div class="tab ${filtroAlunos==='Ativo'?'active':''}" onclick="filtrarAlunos('Ativo')">Ativos (${ativos.length})</div>
@@ -509,7 +509,7 @@ function renderAlunos(c, tb) {
 }
 function filtrarAlunos(tipo) { filtroAlunos=tipo; navigate('alunos'); }
 function renderAlunosTabela(tipo) {
-  const lista = tipo==='Ativo' ? getAtivos() : Object.values(state.alunos).filter(a=>a.status!=='Ativo');
+  const lista = tipo==='Ativo' ? getAtivos() : Object.values(state.alunos).filter(a=>a.status!=='Ativo').sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{sensitivity:'base'}));
   const tbody = document.getElementById('alunos-tbody');
   if (!tbody) return;
   if (!lista.length) { tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state">Nenhum aluno</div></td></tr>`; return; }
