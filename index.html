@@ -7,32 +7,32 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #F7F6F3;
-  --surface: #FFFFFF;
-  --surface2: #F0EEE9;
-  --border: rgba(0,0,0,0.08);
-  --border2: rgba(0,0,0,0.14);
-  --text: #1A1916;
-  --text2: #6B6860;
-  --text3: #9E9C96;
-  --purple: #5B4FE8;
-  --purple-light: #EEF0FD;
-  --purple-dark: #3D34C4;
-  --green: #1A9E6B;
-  --green-light: #E8F7F1;
-  --red: #D94040;
-  --red-light: #FDF0F0;
-  --amber: #C47A1A;
-  --amber-light: #FDF5E6;
-  --blue: #2672D9;
-  --blue-light: #EBF3FD;
-  --whats: #1A9E6B;
+  --bg: #0F0F10;
+  --surface: #1A1A1D;
+  --surface2: #242428;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #F0EFEB;
+  --text2: #A8A69F;
+  --text3: #6B6966;
+  --purple: #7B6FF0;
+  --purple-light: #1E1B3A;
+  --purple-dark: #9488F5;
+  --green: #2AB87A;
+  --green-light: #0D2B1E;
+  --red: #E05555;
+  --red-light: #2A1414;
+  --amber: #D4921F;
+  --amber-light: #2A1E08;
+  --blue: #4A8FE8;
+  --blue-light: #0F1E35;
+  --whats: #2AB87A;
   --sidebar-w: 230px;
   --radius: 10px;
   --radius-lg: 14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 a{text-decoration:none;color:inherit}
 button,select,input{font-family:'DM Sans',sans-serif}
 
@@ -122,11 +122,11 @@ tbody tr:hover td{background:var(--surface2)}
 label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
 input[type=text],input[type=number],input[type=email],select,textarea{padding:8px 11px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--surface);transition:border-color .12s;outline:none;width:100%}
 input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(91,79,232,.1)}
-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239E9C96'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236B6966'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
 
 /* ── Modal ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(2px);animation:fadeIn .15s}
-.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;animation:slideUp .2s}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(2px);animation:fadeIn .15s}
+.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border2);width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;animation:slideUp .2s}
 .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border)}
 .modal-title{font-size:15px;font-weight:600;color:var(--text)}
 .modal-close{background:none;border:none;font-size:20px;color:var(--text3);cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
@@ -145,7 +145,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .pgto-val{font-size:12px;font-weight:600;color:var(--text);min-width:80px;text-align:right;font-family:'DM Mono',monospace}
 
 /* ── Number input for aulas ── */
-.aulas-input{width:44px;padding:4px 6px;border:1px solid var(--border2);border-radius:6px;font-size:12px;text-align:center;background:var(--surface);color:var(--text)}
+.aulas-input{width:44px;padding:4px 6px;border:1px solid var(--border2);border-radius:6px;font-size:12px;text-align:center;background:var(--surface2);color:var(--text)}
 
 /* ── Status select inline ── */
 .status-sel{border:none;background:transparent;cursor:pointer;font-size:11px;font-weight:500;padding:2px 4px;border-radius:20px;outline:none}
@@ -158,7 +158,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .empty-state p{font-size:13px}
 
 /* ── Notification toast ── */
-.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;padding:10px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:2000;animation:fadeIn .2s;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);padding:10px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:2000;animation:fadeIn .2s;box-shadow:0 4px 12px rgba(0,0,0,.2)}
 
 /* ── Responsive ── */
 @media(max-width:768px){
