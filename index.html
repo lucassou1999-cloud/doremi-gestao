@@ -3,738 +3,784 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dó-Ré-Mi Gestão</title>
+<title>Escola de Música — Sistema de Gestão</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252d3d;
-  --border:#2a3347;--border2:#344060;
-  --text:#e8ecf4;--text2:#8b9ab8;--text3:#556080;
-  --purple:#7c6ff7;--purple2:#6259e8;--purple-bg:#1e1b3a;--purple-light:#a99ff8;
-  --green:#34d399;--green-bg:#0d2b22;--green-text:#6ee7b7;
-  --red:#f87171;--red-bg:#2b1111;--red-text:#fca5a5;
-  --amber:#fbbf24;--amber-bg:#2b1f06;--amber-text:#fcd34d;
-  --blue:#60a5fa;--blue-bg:#0f1f3d;--blue-text:#93c5fd;
-  --teal:#2dd4bf;--teal-bg:#0d2523;
-  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
-  --radius:10px;--radius-sm:6px;--radius-lg:14px;
-  --shadow:0 4px 24px rgba(0,0,0,.4);
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --surface2: #F0EEE9;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --text: #1A1916;
+  --text2: #6B6860;
+  --text3: #9E9C96;
+  --purple: #5B4FE8;
+  --purple-light: #EEF0FD;
+  --purple-dark: #3D34C4;
+  --green: #1A9E6B;
+  --green-light: #E8F7F1;
+  --red: #D94040;
+  --red-light: #FDF0F0;
+  --amber: #C47A1A;
+  --amber-light: #FDF5E6;
+  --blue: #2672D9;
+  --blue-light: #EBF3FD;
+  --whats: #1A9E6B;
+  --sidebar-w: 230px;
+  --radius: 10px;
+  --radius-lg: 14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+a{text-decoration:none;color:inherit}
+button,select,input{font-family:'DM Sans',sans-serif}
 
-/* Layout */
-.app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:240px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+/* ── Layout ── */
+#app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sidebar-w);height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{height:60px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:var(--bg2);flex-shrink:0}
-.content{flex:1;overflow-y:auto;padding:28px}
+.topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:24px}
 
-/* Sidebar */
-.sidebar-logo{padding:22px 20px 16px;border-bottom:1px solid var(--border)}
-.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--purple),var(--purple2));border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-.logo-mark svg{width:20px;height:20px;fill:white}
-.logo-name{font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.01em}
-.logo-sub{font-size:11px;color:var(--text3);margin-top:2px}
-.nav{padding:10px 0;flex:1;overflow-y:auto}
-.nav-section{padding:16px 20px 6px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;font-weight:400;color:var(--text2);cursor:pointer;border-left:2px solid transparent;transition:all .15s;user-select:none}
-.nav-item:hover{color:var(--text);background:var(--bg3)}
-.nav-item.active{color:var(--purple-light);border-left-color:var(--purple);background:var(--purple-bg);font-weight:500}
+/* ── Sidebar ── */
+.logo{padding:20px 18px 14px;border-bottom:1px solid var(--border)}
+.logo-name{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.3px}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.logo-badge{display:inline-block;background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:500;padding:1px 7px;border-radius:20px;margin-top:5px}
+.nav-section{padding:16px 18px 5px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:13px;color:var(--text2);cursor:pointer;border-radius:0;transition:all .12s;position:relative;border-left:3px solid transparent;margin:1px 0}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{color:var(--purple);background:var(--purple-light);border-left-color:var(--purple);font-weight:500}
 .nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.7}
 .nav-item.active svg{opacity:1}
-.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
-.sidebar-footer p{font-size:11px;color:var(--text3)}
+.nav-count{margin-left:auto;background:var(--purple-light);color:var(--purple);font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px}
+.nav-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)}
 
-/* Topbar */
-.page-title{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-.02em}
-.topbar-right{display:flex;align-items:center;gap:10px}
+/* ── Topbar ── */
+.page-title{font-size:16px;font-weight:600;color:var(--text);letter-spacing:-.2px}
+.topbar-actions{display:flex;align-items:center;gap:8px}
 
-/* Buttons */
-.btn{padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap}
-.btn:hover{background:var(--bg3);color:var(--text);border-color:var(--border2)}
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:12px;font-weight:500;cursor:pointer;transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--surface2);border-color:var(--border2)}
+.btn:active{transform:scale(.98)}
 .btn-primary{background:var(--purple);border-color:var(--purple);color:#fff}
-.btn-primary:hover{background:var(--purple2);border-color:var(--purple2)}
-.btn-sm{padding:5px 10px;font-size:11px}
-.btn-whats{background:#075e54;border:1px solid #128c7e;color:#dcf8c6;font-size:11px;padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);font-weight:500;white-space:nowrap;transition:all .15s}
-.btn-whats:hover{background:#128c7e}
-.btn-danger{background:var(--red-bg);border-color:var(--red);color:var(--red-text)}
-.btn-danger:hover{background:#3d1414}
+.btn-primary:hover{background:var(--purple-dark);border-color:var(--purple-dark)}
+.btn-green{background:var(--green);border-color:var(--green);color:#fff;font-size:11px;padding:5px 11px}
+.btn-green:hover{background:#147a53}
+.btn-sm{padding:5px 11px;font-size:11px}
+.btn-icon{padding:7px;border-radius:var(--radius)}
 
-/* Cards */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
-.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.card-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em}
-.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
-.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;transition:border-color .15s;cursor:default}
-.metric-card:hover{border-color:var(--border2)}
-.metric-label{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.02em;text-transform:uppercase;margin-bottom:8px}
-.metric-value{font-size:24px;font-weight:600;color:var(--text);letter-spacing:-.03em;line-height:1}
-.metric-sub{font-size:11px;color:var(--text3);margin-top:6px}
-.metric-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+/* ── Cards ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;transition:all .15s}
+.metric:hover{border-color:var(--border2);transform:translateY(-1px)}
+.metric-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.metric-value{font-size:24px;font-weight:600;color:var(--text);letter-spacing:-.5px;line-height:1}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:5px}
+.metric-accent{width:3px;height:32px;border-radius:2px;margin-right:12px;flex-shrink:0}
+.metric-inner{display:flex;align-items:center}
 
-/* Tables */
-.table-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{text-align:left;padding:10px 14px;color:var(--text3);font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3);white-space:nowrap}
-td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-body{padding:16px 18px}
+
+/* ── Table ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
+td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tbody tr{transition:background .1s}
-tbody tr:hover td{background:var(--bg3)}
+tbody tr:hover td{background:var(--surface2)}
 
-/* Badges */
-.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.02em}
-.badge-pago{background:var(--green-bg);color:var(--green-text);border:1px solid #1a4535}
-.badge-atrasado{background:var(--red-bg);color:var(--red-text);border:1px solid #4a1e1e}
-.badge-aguardando{background:var(--amber-bg);color:var(--amber-text);border:1px solid #4a3510}
-.badge-ativo{background:var(--purple-bg);color:var(--purple-light);border:1px solid #2e2660}
-.badge-inativo{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
-.chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-pago{background:var(--green-light);color:var(--green)}
+.badge-atrasado{background:var(--red-light);color:var(--red)}
+.badge-aguardando{background:var(--amber-light);color:var(--amber)}
+.badge-ativo{background:var(--purple-light);color:var(--purple)}
+.badge-inativo{background:var(--surface2);color:var(--text2)}
+.badge-trancado{background:var(--amber-light);color:var(--amber)}
+.chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:var(--surface2);color:var(--text2);font-weight:500}
 
-/* Avatar */
-.avatar{width:30px;height:30px;border-radius:50%;background:var(--purple-bg);border:1px solid var(--purple2);color:var(--purple-light);font-size:11px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+/* ── Avatar ── */
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--purple-light);color:var(--purple);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
 
-/* Forms */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+/* ── Tabs ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab{padding:9px 16px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--purple);border-bottom-color:var(--purple)}
+
+/* ── Form ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-group{display:flex;flex-direction:column;gap:5px}
-.form-group label{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.03em;text-transform:uppercase}
-.form-group input,.form-group select,.form-group textarea{padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--bg3);color:var(--text);font-family:var(--font);transition:border-color .15s;outline:none}
-.form-group input:focus,.form-group select:focus{border-color:var(--purple)}
-.form-group select option{background:var(--bg2)}
-.input-sm{padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;background:var(--bg3);color:var(--text);font-family:var(--mono);width:56px;text-align:center;outline:none}
-.input-sm:focus{border-color:var(--purple)}
+.form-group.full{grid-column:1/-1}
+label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+input[type=text],input[type=number],input[type=email],select,textarea{padding:8px 11px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--surface);transition:border-color .12s;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(91,79,232,.1)}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239E9C96'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
 
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px;width:520px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.modal-title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.02em}
-.modal-close{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-family:var(--font);transition:all .15s}
-.modal-close:hover{background:var(--bg3);color:var(--text)}
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(2px);animation:fadeIn .15s}
+.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;animation:slideUp .2s}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:600;color:var(--text)}
+.modal-close{background:none;border:none;font-size:20px;color:var(--text3);cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.modal-close:hover{background:var(--surface2)}
+.modal-body{padding:20px}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border)}
 
-/* Tabs */
-.tabs{display:flex;gap:2px;margin-bottom:18px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px;width:fit-content}
-.tab{padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;border-radius:5px;color:var(--text3);transition:all .15s;white-space:nowrap}
-.tab.active{background:var(--purple-bg);color:var(--purple-light);border:1px solid #2e2660}
-.tab:not(.active):hover{color:var(--text2)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-/* Bars */
-.pgto-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.pgto-label{font-size:12px;color:var(--text2);width:90px;flex-shrink:0}
-.pgto-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.pgto-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
-.pgto-val{font-size:12px;font-weight:600;color:var(--text);min-width:90px;text-align:right;font-family:var(--mono)}
+/* ── Progress bars ── */
+.pgto-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pgto-label{font-size:12px;color:var(--text2);width:90px;flex-shrink:0;font-weight:500}
+.pgto-track{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.pgto-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.pgto-val{font-size:12px;font-weight:600;color:var(--text);min-width:80px;text-align:right;font-family:'DM Mono',monospace}
 
-/* Misc */
-.empty-state{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px}
-.section-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-.divider{height:1px;background:var(--border);margin:16px 0}
-.mono{font-family:var(--mono);font-size:12px}
-.status-select{border:none;background:transparent;cursor:pointer;font-size:11px;font-weight:600;font-family:var(--font);outline:none;padding:3px 6px;border-radius:20px}
-.tag-julia{background:#0d2b1e;color:#4ade80;border:1px solid #1a4530;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
-.tag-lucas{background:var(--blue-bg);color:var(--blue-text);border:1px solid #1a3060;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
-.tag-dinheiro{background:var(--amber-bg);color:var(--amber-text);border:1px solid #4a3010;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+/* ── Number input for aulas ── */
+.aulas-input{width:44px;padding:4px 6px;border:1px solid var(--border2);border-radius:6px;font-size:12px;text-align:center;background:var(--surface);color:var(--text)}
+
+/* ── Status select inline ── */
+.status-sel{border:none;background:transparent;cursor:pointer;font-size:11px;font-weight:500;padding:2px 4px;border-radius:20px;outline:none}
+.status-sel.pago{background:var(--green-light);color:var(--green)}
+.status-sel.atrasado{background:var(--red-light);color:var(--red)}
+.status-sel.aguardando{background:var(--amber-light);color:var(--amber)}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-state p{font-size:13px}
+
+/* ── Notification toast ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;padding:10px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:2000;animation:fadeIn .2s;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+
+/* ── Responsive ── */
 @media(max-width:768px){
-  .sidebar{display:none}
-  .metric-grid{grid-template-columns:1fr 1fr}
-  .section-2col{grid-template-columns:1fr}
+  .sidebar{width:200px}
+  .metrics-grid{grid-template-columns:1fr 1fr}
   .form-grid{grid-template-columns:1fr}
 }
-
-/* Login */
-.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:0}
-.login-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:36px 40px;width:360px;box-shadow:var(--shadow)}
-.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px}
-.login-logo-mark{width:44px;height:44px;background:linear-gradient(135deg,var(--purple),var(--purple2));border-radius:12px;display:flex;align-items:center;justify-content:center}
-.login-logo-mark svg{width:24px;height:24px;fill:white}
-.login-title{font-size:18px;font-weight:600;color:var(--text);letter-spacing:-.02em}
-.login-sub{font-size:12px;color:var(--text3);margin-top:2px}
-.login-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-.login-field label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.04em;text-transform:uppercase}
-.login-field input{padding:10px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;background:var(--bg3);color:var(--text);font-family:var(--font);outline:none;transition:border-color .15s}
-.login-field input:focus{border-color:var(--purple)}
-.login-btn{width:100%;padding:11px;background:var(--purple);border:none;border-radius:var(--radius-sm);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:6px;transition:background .15s}
-.login-btn:hover{background:var(--purple2)}
-.login-error{font-size:12px;color:var(--red);margin-top:8px;text-align:center;min-height:18px}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.sync-dot.offline{background:var(--amber);animation:none}
-.sync-dot.error{background:var(--red);animation:none}
 </style>
 </head>
 <body>
 
-<div class="login-screen" id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="login-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1010 17V7h4V3h-2z"/></svg></div>
-      <div><div class="login-title">Dó-Ré-Mi Gestão</div><div class="login-sub">Sistema de Gestão Escolar</div></div>
+<div id="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-name">🎵 Escola de Música</div>
+      <div class="logo-sub">Sistema de Gestão</div>
+      <span class="logo-badge">v2.0</span>
     </div>
-    <div class="login-field"><label>Usuário</label><input type="text" id="l-user" placeholder="seu usuário" autocomplete="username"></div>
-    <div class="login-field"><label>Senha</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="login-btn" onclick="doLogin()">Entrar</button>
-    <div class="login-error" id="login-error"></div>
-  </div>
-</div>
-
-<div class="app" style="display:none" id="main-app">
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-mark">
-      <svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1010 17V7h4V3h-2z"/></svg>
-    </div>
-    <div class="logo-name">Dó-Ré-Mi Gestão</div>
-    <div class="logo-sub">Escola de Música</div>
-  </div>
-  <nav class="nav">
     <div class="nav-section">Principal</div>
-    <div class="nav-item active" onclick="navigate('inicio')" id="nav-inicio">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2L2 7v7h4v-4h4v4h4V7z"/></svg>Início
+    <div class="nav-item active" data-page="inicio" onclick="navigate('inicio')">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2L2 7v7h4v-4h4v4h4V7z"/></svg>
+      Início
     </div>
-    <div class="nav-item" onclick="navigate('alunos')" id="nav-alunos">
-      <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Alunos
+    <div class="nav-item" data-page="alunos" onclick="navigate('alunos')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+      Alunos
+      <span class="nav-count" id="nav-count-alunos">0</span>
     </div>
-    <div class="nav-item" onclick="navigate('mensalidades')" id="nav-mensalidades">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M5 8h6M5 11h4"/></svg>Mensalidades
+    <div class="nav-item" data-page="mensalidades" onclick="navigate('mensalidades')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M5 8h6M5 10.5h4"/></svg>
+      Mensalidades
     </div>
-    <div class="nav-item" onclick="navigate('whatsapp')" id="nav-whatsapp">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2C4.7 2 2 4.5 2 7.5c0 1 .3 2 .8 2.8L2 14l3.8-.8c.7.4 1.5.6 2.2.6 3.3 0 6-2.5 6-5.5S11.3 2 8 2z"/></svg>WhatsApp
+    <div class="nav-item" data-page="whatsapp" onclick="navigate('whatsapp')">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2C4.7 2 2 4.5 2 7.5c0 1 .3 2 .8 2.8L2 14l3.8-.8c.7.4 1.5.6 2.2.6 3.3 0 6-2.5 6-5.5S11.3 2 8 2z"/></svg>
+      WhatsApp
     </div>
     <div class="nav-section">Financeiro</div>
-    <div class="nav-item" onclick="navigate('financeiro')" id="nav-financeiro">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 12V6l5-4 5 4v6"/><rect x="6" y="8" width="4" height="4" fill="currentColor" stroke="none"/></svg>Relatórios
+    <div class="nav-item" data-page="financeiro" onclick="navigate('financeiro')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><polyline points="2,12 5,8 8,10 11,5 14,3"/></svg>
+      Relatórios
     </div>
-  </nav>
-  <div class="sidebar-footer">
-    <p>Dó-Ré-Mi Gestão v2.0 — 2025</p>
+    <div class="nav-footer">
+      <div id="nav-user-info">Sistema de Gestão</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="page-title" id="page-title">Início</span>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </div>
+    <div class="content" id="content"></div>
   </div>
 </div>
-
-<!-- MAIN -->
-<div class="main">
-  <div class="topbar">
-    <div class="page-title" id="page-title">Início</div>
-    <div class="topbar-right" id="topbar-actions"></div>
-  </div>
-  <div class="content" id="content"></div>
-</div>
-
-</div>
-
-<!-- MODAL CONTAINER -->
-<div id="modal-root"></div>
 
 <script>
-const PIX={'Pix Júlia':'65976726000100','Pix Lucas':'35483341000140'};
-const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const MES_ATUAL=MESES[new Date().getMonth()];
-const STORE='doremi_gestao_v1';
+// ══════════════════════════════════
+// CONFIGURAÇÕES
+// ══════════════════════════════════
+const PIX = {
+  'Pix Júlia': { chave: '65976726000100', nome: 'Júlia' },
+  'Pix Lucas': { chave: '35483341000140', nome: 'Lucas' }
+};
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MES_ATUAL = MESES[new Date().getMonth()];
 
-let db=JSON.parse(localStorage.getItem(STORE)||'null')||{
-  alunos:[
+// ══════════════════════════════════
+// BANCO DE DADOS (localStorage)
+// ══════════════════════════════════
+const STORE = 'escola_musica_v2';
+function loadDB() {
+  try { return JSON.parse(localStorage.getItem(STORE)) || null; } catch(e) { return null; }
+}
+function saveDB() { localStorage.setItem(STORE, JSON.stringify(db)); }
+
+let db = loadDB() || {
+  alunos: [
     {id:1,nome:'Anahí',instrumento:'Violão',professor:'Carlos',dia:10,valor:150,tel:'5551998671885',responsavel:'',pgto:'Pix Júlia',status:'Ativo',mesEntrada:'Janeiro'},
     {id:2,nome:'Arthur (Laine)',instrumento:'Piano',professor:'Fernanda',dia:5,valor:200,tel:'5551999990002',responsavel:'',pgto:'Pix Lucas',status:'Ativo',mesEntrada:'Janeiro'},
     {id:3,nome:'Dárien',instrumento:'Canto',professor:'Fernanda',dia:15,valor:180,tel:'5551999990003',responsavel:'',pgto:'Pix Júlia',status:'Ativo',mesEntrada:'Janeiro'},
     {id:4,nome:'Eduardo',instrumento:'Bateria',professor:'Ricardo',dia:20,valor:220,tel:'5551999990004',responsavel:'',pgto:'Pix Lucas',status:'Ativo',mesEntrada:'Janeiro'},
     {id:5,nome:'Fernanda',instrumento:'Violino',professor:'Carlos',dia:10,valor:250,tel:'5551999990005',responsavel:'',pgto:'Dinheiro',status:'Ativo',mesEntrada:'Janeiro'},
   ],
-  pagamentos:[],
-  nextId:6
+  pagamentos: [],
+  nextId: 6
 };
 
-function save(){localStorage.setItem(STORE,JSON.stringify(db));}
-function fmt(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function getAtivos(){return db.alunos.filter(a=>a.status==='Ativo');}
-function getPagMes(mes){return db.pagamentos.filter(p=>p.mes===mes);}
-function getPag(alunoId,mes){return db.pagamentos.find(p=>p.alunoId===alunoId&&p.mes===mes);}
-function getOrCreatePag(alunoId,mes){
-  let p=getPag(alunoId,mes);
-  if(!p){const a=db.alunos.find(x=>x.id===alunoId);p={alunoId,mes,status:'Aguardando',valor:a.valor,valorAjustado:a.valor,aulasDadas:4,totalAulas:4,data:new Date().toISOString()};db.pagamentos.push(p);}
+// ══════════════════════════════════
+// HELPERS
+// ══════════════════════════════════
+function fmt(v) {
+  return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function getAtivos() { return db.alunos.filter(a => a.status === 'Ativo'); }
+function getPagMes(mes) { return db.pagamentos.filter(p => p.mes === mes); }
+function getPagAluno(alunoId, mes) { return db.pagamentos.find(p => p.alunoId === alunoId && p.mes === mes); }
+function initials(nome) { return nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase(); }
+
+function getOuCriaPag(alunoId, mes) {
+  let p = getPagAluno(alunoId, mes);
+  if (!p) {
+    const a = db.alunos.find(x => x.id === alunoId);
+    p = { alunoId, mes, status: 'Aguardando', valor: a.valor, valorAjustado: a.valor, aulasDadas: 4, totalAulas: 4, data: new Date().toISOString() };
+    db.pagamentos.push(p);
+  }
   return p;
 }
-function initials(n){return n.split(' ').slice(0,2).map(x=>x[0]||'').join('').toUpperCase();}
-function pgtoTag(pgto){
-  if(pgto==='Pix Júlia')return'<span class="tag-julia">Pix Júlia</span>';
-  if(pgto==='Pix Lucas')return'<span class="tag-lucas">Pix Lucas</span>';
-  return'<span class="tag-dinheiro">Dinheiro</span>';
+
+function calcValorAjustado(valorBase, aulasDadas, totalAulas) {
+  if (!totalAulas || totalAulas <= 0) return valorBase;
+  return Math.round((valorBase / totalAulas) * aulasDadas * 100) / 100;
 }
 
-// Navigation
-function navigate(page){
-  currentPageName = page;
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const navEl = document.getElementById('nav-'+page);
-  if(navEl) navEl.classList.add('active');
-  const titles={inicio:'Início',alunos:'Alunos',mensalidades:'Mensalidades',whatsapp:'WhatsApp',financeiro:'Relatórios'};
-  document.getElementById('page-title').textContent=titles[page]||page;
-  document.getElementById('topbar-actions').innerHTML=`
-    <div style="display:flex;align-items:center;gap:8px">
-      <span id="sync-dot" class="sync-dot offline" title="Salvando localmente"></span>
-      <span style="font-size:11px;color:var(--text3);margin-right:4px">lucas</span>
-      <button class="btn btn-sm" onclick="exportarDados()" title="Baixar backup">Backup</button>
-      <button class="btn btn-sm" onclick="importarDados()" title="Restaurar backup">Importar</button>
-      <button class="btn btn-sm" onclick="doLogout()" style="color:var(--red);border-color:var(--red)">Sair</button>
-    </div>`;
-  setTimeout(updateSyncUI, 100);
-  const renders={inicio:renderInicio,alunos:renderAlunos,mensalidades:renderMensalidades,whatsapp:renderWhatsApp,financeiro:renderFinanceiro};
-  renders[page]();
+function gerarMsgWhats(aluno, mes, valorAjustado) {
+  const nomeMsg = aluno.responsavel || aluno.nome;
+  const inteiro = Math.floor(valorAjustado);
+  const cents = String(Math.round((valorAjustado % 1) * 100)).padStart(2, '0');
+  let pgtoTxt = '';
+  if (aluno.pgto === 'Pix Júlia') pgtoTxt = ` Chave Pix: ${PIX['Pix Júlia'].chave}`;
+  else if (aluno.pgto === 'Pix Lucas') pgtoTxt = ` Chave Pix: ${PIX['Pix Lucas'].chave}`;
+  else pgtoTxt = ' Por favor acerte o valor na próxima aula.';
+  return `Olá ${nomeMsg}! Sua mensalidade de *R$ ${inteiro},${cents}* referente a ${mes} vence em breve. Por favor realize o pagamento.${pgtoTxt} Obrigado! 🎵`;
 }
 
-// INÍCIO
-function renderInicio(){
+function abrirWhats(alunoId, mes) {
+  const a = db.alunos.find(x => x.id === alunoId);
+  if (!a || !a.tel) { toast('Telefone não cadastrado para ' + a?.nome); return; }
+  const p = getPagAluno(alunoId, mes);
+  const val = p?.valorAjustado ?? a.valor;
+  const msg = gerarMsgWhats(a, mes, val);
+  window.open('https://wa.me/' + a.tel + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function toast(msg, dur=2500) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), dur);
+}
+
+// ══════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════
+let currentPage = 'inicio';
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.page === page);
+  });
+  const titles = { inicio:'Início', alunos:'Alunos', mensalidades:'Mensalidades', whatsapp:'WhatsApp', financeiro:'Relatórios' };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  document.getElementById('topbar-actions').innerHTML = '';
+  updateNavCounts();
+
   const c = document.getElementById('content');
-  if (!c) return;
-  firstRenderDone = true;
-  const ativos=getAtivos();
-  const pags=getPagMes(MES_ATUAL);
-  const totalPrev=ativos.reduce((s,a)=>s+a.valor,0);
-  const pagos=pags.filter(p=>p.status==='Pago');
-  const totalPago=pagos.reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
-  const totalAtras=pags.filter(p=>p.status==='Atrasado').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
-  const taxa=totalPrev>0?Math.round(totalPago/totalPrev*100):0;
-  const recentes=[...db.pagamentos].sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,6);
+  const tb = document.getElementById('topbar-actions');
+  if (page === 'inicio') renderInicio(c);
+  else if (page === 'alunos') renderAlunos(c, tb);
+  else if (page === 'mensalidades') renderMensalidades(c, tb);
+  else if (page === 'whatsapp') renderWhatsApp(c, tb);
+  else if (page === 'financeiro') renderFinanceiro(c);
+}
 
-  document.getElementById('content').innerHTML=`
-  <div class="metric-grid">
-    <div class="metric-card"><div class="metric-label">Alunos ativos</div><div class="metric-value">${ativos.length}</div><div class="metric-sub">${db.alunos.filter(a=>a.status!=='Ativo').length} inativos</div></div>
-    <div class="metric-card"><div class="metric-label">Previsto — ${MES_ATUAL}</div><div class="metric-value">${fmt(totalPrev)}</div><div class="metric-sub">${ativos.length} mensalidades</div></div>
-    <div class="metric-card"><div class="metric-label">Recebido — ${MES_ATUAL}</div><div class="metric-value" style="color:var(--green)">${fmt(totalPago)}</div><div class="metric-sub"><span class="metric-dot" style="background:var(--green)"></span>${taxa}% do previsto</div></div>
-    <div class="metric-card"><div class="metric-label">Em atraso — ${MES_ATUAL}</div><div class="metric-value" style="color:${totalAtras>0?'var(--red)':'var(--green)'}">${fmt(totalAtras)}</div><div class="metric-sub">${totalAtras>0?'cobranças pendentes':'tudo em dia'}</div></div>
+function updateNavCounts() {
+  const el = document.getElementById('nav-count-alunos');
+  if (el) el.textContent = getAtivos().length;
+}
+
+// ══════════════════════════════════
+// PÁGINA: INÍCIO
+// ══════════════════════════════════
+function renderInicio(c) {
+  const ativos = getAtivos();
+  const pags = getPagMes(MES_ATUAL);
+  const totalPrev = ativos.reduce((s, a) => s + a.valor, 0);
+  const totalPago = pags.filter(p => p.status === 'Pago').reduce((s, p) => s + (p.valorAjustado || p.valor), 0);
+  const totalAtras = pags.filter(p => p.status === 'Atrasado').reduce((s, p) => s + (p.valorAjustado || p.valor), 0);
+  const pct = totalPrev > 0 ? Math.round(totalPago / totalPrev * 100) : 0;
+
+  c.innerHTML = `
+  <div class="metrics-grid">
+    <div class="metric" onclick="navigate('alunos')">
+      <div class="metric-label">Alunos ativos</div>
+      <div class="metric-inner"><div class="metric-accent" style="background:var(--purple)"></div><div class="metric-value">${ativos.length}</div></div>
+      <div class="metric-sub">${db.alunos.filter(a=>a.status!=='Ativo').length} inativos/trancados</div>
+    </div>
+    <div class="metric" onclick="navigate('mensalidades')">
+      <div class="metric-label">Previsto — ${MES_ATUAL}</div>
+      <div class="metric-inner"><div class="metric-accent" style="background:var(--blue)"></div><div class="metric-value" style="font-size:18px">${fmt(totalPrev)}</div></div>
+      <div class="metric-sub">${ativos.length} mensalidades</div>
+    </div>
+    <div class="metric" onclick="navigate('mensalidades')">
+      <div class="metric-label">Recebido — ${MES_ATUAL}</div>
+      <div class="metric-inner"><div class="metric-accent" style="background:var(--green)"></div><div class="metric-value" style="font-size:18px;color:var(--green)">${fmt(totalPago)}</div></div>
+      <div class="metric-sub">${pct}% do previsto</div>
+    </div>
+    <div class="metric" onclick="navigate('mensalidades')">
+      <div class="metric-label">Em atraso — ${MES_ATUAL}</div>
+      <div class="metric-inner"><div class="metric-accent" style="background:${totalAtras>0?'var(--red)':'var(--green)'}"></div><div class="metric-value" style="font-size:18px;color:${totalAtras>0?'var(--red)':'var(--green)'}">${fmt(totalAtras)}</div></div>
+      <div class="metric-sub">${pags.filter(p=>p.status==='Atrasado').length} alunos</div>
+    </div>
   </div>
-  <div class="section-2col">
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
     <div class="card">
-      <div class="card-header"><span class="card-title">Recebimento por forma — ${MES_ATUAL}</span></div>
-      <div id="pgto-bars"></div>
+      <div class="card-head"><span class="card-title">Recebimento por forma de pagamento — ${MES_ATUAL}</span></div>
+      <div class="card-body" id="pgto-breakdown"></div>
     </div>
     <div class="card">
-      <div class="card-header"><span class="card-title">Últimas atividades</span></div>
-      <div id="ativ-list"></div>
+      <div class="card-head"><span class="card-title">Últimas atividades</span></div>
+      <div id="atividades"></div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Alunos com pagamento pendente — ${MES_ATUAL}</span>
+      <button class="btn btn-sm" onclick="navigate('whatsapp')">Cobrar via WhatsApp</button>
+    </div>
+    <div class="table-wrap" id="pendentes-table"></div>
   </div>`;
 
-  const bars=document.getElementById('pgto-bars');
-  [['Pix Júlia','#34d399'],['Pix Lucas','#60a5fa'],['Dinheiro','#fbbf24']].forEach(([tipo,cor])=>{
-    const al=ativos.filter(a=>a.pgto===tipo);
-    const prev=al.reduce((s,a)=>s+a.valor,0);
-    const rec=pags.filter(p=>p.status==='Pago'&&al.find(a=>a.id===p.alunoId)).reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
-    const pct=prev>0?Math.round(rec/prev*100):0;
-    bars.innerHTML+=`<div class="pgto-bar"><span class="pgto-label">${tipo}</span><div class="pgto-track"><div class="pgto-fill" style="width:${pct}%;background:${cor}"></div></div><span class="pgto-val">${fmt(rec)}</span></div>`;
-  });
-
-  const al=document.getElementById('ativ-list');
-  if(!recentes.length){al.innerHTML='<div class="empty-state">Nenhuma atividade ainda</div>';return;}
-  recentes.forEach(p=>{
-    const a=db.alunos.find(x=>x.id===p.alunoId);
-    al.innerHTML+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="avatar">${initials(a?.nome||'?')}</div>
-        <div><div style="font-size:12px;font-weight:500">${a?.nome||'—'}</div><div style="font-size:11px;color:var(--text3)">${p.mes}</div></div>
-      </div>
-      <div style="text-align:right"><div class="mono" style="font-size:12px;font-weight:500">${fmt(p.valorAjustado||p.valor)}</div><span class="badge badge-${(p.status||'aguardando').toLowerCase()}">${p.status}</span></div>
+  // Breakdown por forma de pgto
+  const breakdown = document.getElementById('pgto-breakdown');
+  let bHtml = '';
+  ['Pix Júlia','Pix Lucas','Dinheiro'].forEach(tipo => {
+    const alunosTipo = ativos.filter(a => a.pgto === tipo);
+    const prev = alunosTipo.reduce((s,a)=>s+a.valor,0);
+    const pago = pags.filter(p=>p.status==='Pago'&&alunosTipo.find(a=>a.id===p.alunoId)).reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
+    const pct2 = prev>0?Math.round(pago/prev*100):0;
+    const cor = tipo==='Pix Júlia'?'var(--green)':tipo==='Pix Lucas'?'var(--blue)':'var(--amber)';
+    bHtml += `<div class="pgto-row">
+      <span class="pgto-label">${tipo}</span>
+      <div class="pgto-track"><div class="pgto-fill" style="width:${pct2}%;background:${cor}"></div></div>
+      <span class="pgto-val">${fmt(pago)}</span>
     </div>`;
   });
-}
+  breakdown.innerHTML = bHtml || '<div class="empty-state"><p>Nenhum pagamento registrado</p></div>';
 
-// ALUNOS
-let filtroStatus='Ativo';
-function renderAlunos(){
-  firstRenderDone = true;
-  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-primary btn-sm" onclick="openModalAluno()">+ Novo aluno</button>`;
-  const ativos=db.alunos.filter(a=>a.status==='Ativo').length;
-  const inativos=db.alunos.filter(a=>a.status!=='Ativo').length;
-  document.getElementById('content').innerHTML=`
-  <div class="tabs"><div class="tab ${filtroStatus==='Ativo'?'active':''}" onclick="setFiltroAluno('Ativo')">Ativos (${ativos})</div><div class="tab ${filtroStatus!=='Ativo'?'active':''}" onclick="setFiltroAluno('Inativo')">Inativos/Trancados (${inativos})</div></div>
-  <div class="table-wrap"><table>
-    <thead><tr><th></th><th>Nome</th><th>Instrumento</th><th>Professor</th><th>Mensalidade</th><th>Forma pgto</th><th>Telefone</th><th>Status</th><th></th></tr></thead>
-    <tbody id="alunos-body"></tbody>
-  </table></div>`;
-  renderAlunosBody();
-}
-function setFiltroAluno(s){filtroStatus=s;renderAlunos();}
-function renderAlunosBody(){
-  const lista=db.alunos.filter(a=>filtroStatus==='Ativo'?a.status==='Ativo':a.status!=='Ativo');
-  const tbody=document.getElementById('alunos-body');
-  if(!lista.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state">Nenhum aluno</div></td></tr>`;return;}
-  tbody.innerHTML=lista.map(a=>`<tr>
-    <td><div class="avatar">${initials(a.nome)}</div></td>
-    <td><div style="font-size:12px;font-weight:500">${a.nome}</div>${a.responsavel?`<div style="font-size:10px;color:var(--text3)">Resp: ${a.responsavel}</div>`:''}</td>
-    <td style="color:var(--text2)">${a.instrumento||'—'}</td>
-    <td style="color:var(--text2)">${a.professor||'—'}</td>
-    <td class="mono" style="font-weight:500">${fmt(a.valor)}</td>
-    <td>${pgtoTag(a.pgto)}</td>
-    <td class="mono" style="color:var(--text3);font-size:11px">${a.tel||'—'}</td>
-    <td><span class="badge badge-${a.status==='Ativo'?'ativo':'inativo'}">${a.status}</span></td>
-    <td style="display:flex;gap:6px"><button class="btn btn-sm" onclick="openModalAluno(${a.id})">Editar</button>${a.status==='Ativo'?`<button class="btn btn-sm btn-danger" onclick="inativarAluno(${a.id})">Inativar</button>`:`<button class="btn btn-sm" onclick="reativarAluno(${a.id})">Reativar</button>`}</td>
-  </tr>`).join('');
-}
-function inativarAluno(id){if(confirm('Mover aluno para inativos?')){db.alunos.find(a=>a.id===id).status='Inativo';saveToCloud();renderAlunos();}}
-function reativarAluno(id){db.alunos.find(a=>a.id===id).status='Ativo';saveToCloud();renderAlunos();}
+  // Atividades recentes
+  const atEl = document.getElementById('atividades');
+  const recentes = [...db.pagamentos].sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,6);
+  if (!recentes.length) { atEl.innerHTML='<div class="empty-state"><p>Nenhuma atividade ainda</p></div>'; }
+  else {
+    atEl.innerHTML = recentes.map(p => {
+      const al = db.alunos.find(a=>a.id===p.alunoId);
+      const stClass = p.status.toLowerCase();
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="avatar">${initials(al?.nome||'?')}</div>
+          <div><div style="font-size:13px;font-weight:500">${al?.nome||'—'}</div><div style="font-size:11px;color:var(--text3)">${p.mes}</div></div>
+        </div>
+        <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace">${fmt(p.valorAjustado||p.valor)}</span>
+          <span class="badge badge-${stClass}">${p.status}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
 
-function openModalAluno(id){
-  const a=id?db.alunos.find(x=>x.id===id):null;
-  document.getElementById('modal-root').innerHTML=`<div class="modal-overlay" onclick="e=>{if(e.target===this)closeModal()}">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">${a?'Editar aluno':'Novo aluno'}</span>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Nome completo</label><input id="f-nome" value="${a?.nome||''}" placeholder="Nome do aluno"></div>
-      <div class="form-group"><label>Instrumento</label><input id="f-instr" value="${a?.instrumento||''}" placeholder="ex: Violão, Piano..."></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Professor</label><input id="f-prof" value="${a?.professor||''}" placeholder="Nome do professor"></div>
-      <div class="form-group"><label>Responsável (opcional)</label><input id="f-resp" value="${a?.responsavel||''}" placeholder="Nome p/ mensagem WhatsApp"></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Mensalidade (R$)</label><input id="f-valor" type="number" step="0.01" value="${a?.valor||''}" placeholder="0,00"></div>
-      <div class="form-group"><label>Dia de vencimento</label><input id="f-dia" type="number" min="1" max="31" value="${a?.dia||''}" placeholder="ex: 10"></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Telefone (WhatsApp)</label><input id="f-tel" value="${a?.tel||''}" placeholder="5551999990000"></div>
-      <div class="form-group"><label>Mês de entrada</label><select id="f-mes">${MESES.map(m=>`<option ${a?.mesEntrada===m||(!a&&m===MES_ATUAL)?'selected':''}>${m}</option>`).join('')}</select></div>
-    </div>
-    <div class="form-grid">
-      <div class="form-group"><label>Forma de pagamento</label><select id="f-pgto">${['Pix Júlia','Pix Lucas','Dinheiro'].map(p=>`<option ${a?.pgto===p?'selected':''}>${p}</option>`).join('')}</select></div>
-      <div class="form-group"><label>Status</label><select id="f-status">${['Ativo','Inativo','Trancado'].map(s=>`<option ${a?.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-      <button class="btn" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveAluno(${a?.id||0})">Salvar aluno</button>
-    </div>
-  </div></div>`;
-}
-function saveAluno(id){
-  const nome=document.getElementById('f-nome').value.trim();
-  if(!nome)return alert('Nome é obrigatório');
-  const obj={nome,instrumento:document.getElementById('f-instr').value.trim(),professor:document.getElementById('f-prof').value.trim(),responsavel:document.getElementById('f-resp').value.trim(),valor:parseFloat(document.getElementById('f-valor').value)||0,dia:parseInt(document.getElementById('f-dia').value)||1,tel:document.getElementById('f-tel').value.trim(),mesEntrada:document.getElementById('f-mes').value,pgto:document.getElementById('f-pgto').value,status:document.getElementById('f-status').value};
-  if(id){Object.assign(db.alunos.find(a=>a.id===id),obj);}
-  else{db.alunos.push({id:db.nextId++,...obj});}
-  saveToCloud();closeModal();navigate('alunos');
-}
-function closeModal(){document.getElementById('modal-root').innerHTML='';}
-
-// MENSALIDADES
-let mesSel=MES_ATUAL;
-function renderMensalidades(){
-  firstRenderDone = true;
-  document.getElementById('topbar-actions').innerHTML=`<select id="mes-sel" class="btn btn-sm" onchange="mesSel=this.value;renderMensalidadesTabela()" style="padding:5px 10px">${MESES.map(m=>`<option ${m===mesSel?'selected':''}>${m}</option>`).join('')}</select>`;
-  document.getElementById('content').innerHTML='<div id="mens-wrap"></div>';
-  renderMensalidadesTabela();
-}
-function renderMensalidadesTabela(){
-  const mes=mesSel;
-  const ativos=getAtivos();
-  const pags=getPagMes(mes);
-  const totalPrev=ativos.reduce((s,a)=>s+a.valor,0);
-  const totalPago=pags.filter(p=>p.status==='Pago').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
-  const totalAtras=pags.filter(p=>p.status==='Atrasado').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
-  document.getElementById('mens-wrap').innerHTML=`
-  <div class="metric-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
-    <div class="metric-card"><div class="metric-label">Previsto</div><div class="metric-value">${fmt(totalPrev)}</div></div>
-    <div class="metric-card"><div class="metric-label">Recebido</div><div class="metric-value" style="color:var(--green)">${fmt(totalPago)}</div></div>
-    <div class="metric-card"><div class="metric-label">Em atraso</div><div class="metric-value" style="color:${totalAtras>0?'var(--red)':'var(--green)'}">${fmt(totalAtras)}</div></div>
-  </div>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Aluno</th><th>Mensalidade</th><th>Aulas dadas / total</th><th>Valor a cobrar</th><th>Forma pgto</th><th>Status</th><th>WhatsApp</th></tr></thead>
-    <tbody>${ativos.map(a=>{
-      const p=getPag(a.id,mes);
-      const ad=p?.aulasDadas??4;const ta=p?.totalAulas??4;
-      const vc=p?.valorAjustado??a.valor;const st=p?.status||'Aguardando';
-      return`<tr>
-        <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">${initials(a.nome)}</div><div><div style="font-size:12px;font-weight:500">${a.nome}</div>${a.responsavel?`<div style="font-size:10px;color:var(--text3)">${a.responsavel}</div>`:''}</div></div></td>
-        <td class="mono">${fmt(a.valor)}</td>
-        <td><div style="display:flex;align-items:center;gap:6px">
-          <input class="input-sm" type="number" min="0" max="20" value="${ad}" onchange="updAulas(${a.id},'${mes}',this.value,${ta},${a.valor})" title="Aulas dadas">
-          <span style="color:var(--text3);font-size:12px">/</span>
-          <input class="input-sm" type="number" min="1" max="20" value="${ta}" onchange="updAulas(${a.id},'${mes}',${ad},this.value,${a.valor})" title="Total de aulas">
-        </div></td>
-        <td class="mono" style="font-weight:600;color:${vc<a.valor?'var(--amber)':'var(--text)'}">${fmt(vc)}</td>
-        <td>${pgtoTag(a.pgto)}</td>
-        <td><select class="status-select badge badge-${st.toLowerCase()}" onchange="updStatus(${a.id},'${mes}',this.value)">
-          ${['Aguardando','Pago','Atrasado'].map(s=>`<option ${st===s?'selected':''}>${s}</option>`).join('')}
-        </select></td>
-        <td><button class="btn-whats" onclick="abrirWhats(${a.id},'${mes}')">Enviar</button></td>
+  // Pendentes
+  const pend = ativos.filter(a => {
+    const p = getPagAluno(a.id, MES_ATUAL);
+    return !p || p.status !== 'Pago';
+  });
+  const ptEl = document.getElementById('pendentes-table');
+  if (!pend.length) { ptEl.innerHTML='<div class="empty-state"><p>Todos os alunos pagaram este mês! 🎉</p></div>'; }
+  else {
+    ptEl.innerHTML = `<table><thead><tr><th>Aluno</th><th>Mensalidade</th><th>Forma pgto</th><th>Status</th><th></th></tr></thead><tbody>
+    ${pend.map(a => {
+      const p = getPagAluno(a.id, MES_ATUAL);
+      const st = p?.status||'Aguardando';
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">${initials(a.nome)}</div><div><div style="font-weight:500">${a.nome}</div>${a.responsavel?`<div style="font-size:11px;color:var(--text3)">${a.responsavel}</div>`:''}</div></div></td>
+        <td style="font-family:'DM Mono',monospace;font-weight:500">${fmt(a.valor)}</td>
+        <td><span class="chip">${a.pgto}</span></td>
+        <td><span class="badge badge-${st.toLowerCase()}">${st}</span></td>
+        <td><button class="btn-green btn" onclick="abrirWhats(${a.id},'${MES_ATUAL}')"><svg width="12" height="12" viewBox="0 0 16 16" fill="white"><path d="M8 2C4.7 2 2 4.5 2 7.5c0 1 .3 2 .8 2.8L2 14l3.8-.8c.7.4 1.5.6 2.2.6 3.3 0 6-2.5 6-5.5S11.3 2 8 2z"/></svg> Cobrar</button></td>
       </tr>`;
     }).join('')}
-    </tbody>
-  </table></div>`;
-}
-function updAulas(id,mes,ad,ta,vb){
-  const p=getOrCreatePag(id,mes);
-  p.aulasDadas=parseInt(ad)||0;p.totalAulas=parseInt(ta)||4;
-  p.valorAjustado=Math.round((vb/p.totalAulas)*p.aulasDadas*100)/100;
-  p.data=new Date().toISOString();saveToCloud();renderMensalidadesTabela();
-}
-function updStatus(id,mes,st){
-  const p=getOrCreatePag(id,mes);p.status=st;p.data=new Date().toISOString();saveToCloud();
+    </tbody></table>`;
+  }
 }
 
-// WHATSAPP
-function renderWhatsApp(){
-  firstRenderDone = true;
-  const ativos=getAtivos();
-  document.getElementById('content').innerHTML=`
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-header">
-      <span class="card-title">Cobranças — ${MES_ATUAL}</span>
-      <button class="btn btn-sm btn-primary" onclick="enviarTodos()">Enviar para todos</button>
-    </div>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:16px">A mensagem usa o valor ajustado conforme as aulas dadas. Se houver responsável cadastrado, o nome dele aparece na mensagem.</p>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Aluno / Responsável</th><th>Telefone</th><th>Valor</th><th>Forma pgto</th><th>Status</th><th>Ação</th></tr></thead>
-      <tbody>${ativos.map(a=>{
-        const p=getPag(a.id,MES_ATUAL);
-        const val=p?.valorAjustado??a.valor;const st=p?.status||'Aguardando';
-        return`<tr>
-          <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">${initials(a.nome)}</div><div><div style="font-size:12px;font-weight:500">${a.nome}</div>${a.responsavel?`<div style="font-size:10px;color:var(--text3)">msg: ${a.responsavel}</div>`:''}</div></div></td>
-          <td class="mono" style="color:var(--text3);font-size:11px">${a.tel||'<span style="color:var(--red)">não cadastrado</span>'}</td>
-          <td class="mono" style="font-weight:600;color:${val<a.valor?'var(--amber)':'var(--text)'}">${fmt(val)}</td>
-          <td>${pgtoTag(a.pgto)}</td>
-          <td><span class="badge badge-${st.toLowerCase()}">${st}</span></td>
-          <td>${a.tel?`<button class="btn-whats" onclick="abrirWhats(${a.id},'${MES_ATUAL}')">Abrir WhatsApp</button>`:'<span style="font-size:11px;color:var(--red)">sem telefone</span>'}</td>
-        </tr>`;
-      }).join('')}</tbody>
-    </table></div>
+// ══════════════════════════════════
+// PÁGINA: ALUNOS
+// ══════════════════════════════════
+let filtroStatus = 'Ativo';
+function renderAlunos(c, tb) {
+  tb.innerHTML = `<button class="btn btn-primary" onclick="abrirModalAluno(0)">+ Novo aluno</button>`;
+  c.innerHTML = `
+  <div class="tabs">
+    <div class="tab ${filtroStatus==='Ativo'?'active':''}" onclick="filtrarAlunos('Ativo')">Ativos (${getAtivos().length})</div>
+    <div class="tab ${filtroStatus!=='Ativo'?'active':''}" onclick="filtrarAlunos('outro')">Inativos / Trancados (${db.alunos.filter(a=>a.status!=='Ativo').length})</div>
   </div>
-  <div class="card">
-    <div class="card-header"><span class="card-title">Chaves Pix configuradas</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Pix Júlia</div>
-        <div class="mono" style="font-size:13px;font-weight:500;color:var(--green)">${PIX['Pix Júlia']}</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:4px">CNPJ</div>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Pix Lucas</div>
-        <div class="mono" style="font-size:13px;font-weight:500;color:var(--blue)">${PIX['Pix Lucas']}</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:4px">CNPJ</div>
-      </div>
-    </div>
-  </div>`;
-}
-
-function abrirWhats(id,mes){
-  const a=db.alunos.find(x=>x.id===id);
-  if(!a?.tel)return alert('Telefone não cadastrado para este aluno');
-  const p=getPag(a.id,mes);
-  const val=p?.valorAjustado??a.valor;
-  const nomeMsg=a.responsavel||a.nome;
-  const inteiro=Math.floor(val);
-  const cents=String(Math.round((val%1)*100)).padStart(2,'0');
-  let pgtoBloco='';
-  if(a.pgto==='Pix Júlia')pgtoBloco=` Chave Pix: ${PIX['Pix Júlia']}`;
-  else if(a.pgto==='Pix Lucas')pgtoBloco=` Chave Pix: ${PIX['Pix Lucas']}`;
-  else pgtoBloco=' Por favor acerte o valor na próxima aula.';
-  const msg=`Olá ${nomeMsg}! Sua mensalidade de *R$ ${inteiro},${cents}* referente a ${mes} vence em breve. Por favor realize o pagamento.${pgtoBloco} Obrigado! 🎵`;
-  window.open(`https://wa.me/${a.tel}?text=${encodeURIComponent(msg)}`,'_blank');
-}
-function enviarTodos(){
-  const ativos=getAtivos().filter(a=>a.tel);
-  if(!ativos.length)return alert('Nenhum aluno com telefone cadastrado');
-  if(!confirm(`Abrir ${ativos.length} links do WhatsApp?`))return;
-  ativos.forEach((a,i)=>setTimeout(()=>abrirWhats(a.id,MES_ATUAL),i*900));
-}
-
-// FINANCEIRO
-function renderFinanceiro(){
-  firstRenderDone = true;
-  const totalRec=db.pagamentos.filter(p=>p.status==='Pago').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
-  const byPgto=['Pix Júlia','Pix Lucas','Dinheiro'].map(tipo=>{
-    const al=db.alunos.filter(a=>a.pgto===tipo);
-    const rec=db.pagamentos.filter(p=>p.status==='Pago'&&al.find(a=>a.id===p.alunoId)).reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
-    const prev=al.filter(a=>a.status==='Ativo').reduce((s,a)=>s+a.valor,0);
-    return{tipo,rec,prev,alunos:al.filter(a=>a.status==='Ativo').length};
-  });
-  const byMes=MESES.map(mes=>{
-    const pags=getPagMes(mes);const ativos=getAtivos();
-    const prev=ativos.reduce((s,a)=>s+a.valor,0);
-    const pago=pags.filter(p=>p.status==='Pago').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
-    const atras=pags.filter(p=>p.status==='Atrasado').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
-    return{mes,prev,pago,atras};
-  });
-
-  document.getElementById('content').innerHTML=`
-  <div class="metric-grid" style="margin-bottom:20px">
-    <div class="metric-card"><div class="metric-label">Total recebido 2025</div><div class="metric-value" style="color:var(--green)">${fmt(totalRec)}</div></div>
-    ${byPgto.map(b=>`<div class="metric-card"><div class="metric-label">${b.tipo}</div><div class="metric-value">${fmt(b.rec)}</div><div class="metric-sub">${b.alunos} alunos ativos</div></div>`).join('')}
-  </div>
-  <div class="card">
-    <div class="card-header"><span class="card-title">Resumo mensal — 2025</span></div>
+  <div class="card" style="padding:0">
     <div class="table-wrap"><table>
-      <thead><tr><th>Mês</th><th>Previsto</th><th>Recebido</th><th>Em atraso</th><th>Progresso</th></tr></thead>
-      <tbody>${byMes.map(({mes,prev,pago,atras})=>{
-        const pct=prev>0?Math.round(pago/prev*100):0;
-        const isAtual=mes===MES_ATUAL;
-        return`<tr style="${isAtual?'background:var(--purple-bg)':''}">
-          <td style="font-weight:${isAtual?'600':'400'};color:${isAtual?'var(--purple-light)':'var(--text)'}">${mes}${isAtual?` <span class="badge badge-ativo" style="margin-left:4px">atual</span>`:''}</td>
-          <td class="mono">${fmt(prev)}</td>
-          <td class="mono" style="color:${pago>0?'var(--green)':'var(--text3)'}">${fmt(pago)}</td>
-          <td class="mono" style="color:${atras>0?'var(--red)':'var(--text3)'}">${fmt(atras)}</td>
-          <td><div style="display:flex;align-items:center;gap:8px"><div class="pgto-track" style="width:100px"><div class="pgto-fill" style="width:${pct}%;background:var(--green)"></div></div><span style="font-size:11px;font-weight:600;font-family:var(--mono)">${pct}%</span></div></td>
-        </tr>`;
-      }).join('')}</tbody>
+      <thead><tr><th></th><th>Nome</th><th>Instrumento</th><th>Professor</th><th>Mensalidade</th><th>Forma Pgto</th><th>Status</th><th></th></tr></thead>
+      <tbody id="alunos-tbody"></tbody>
     </table></div>
   </div>`;
+  renderAlunosTabela(filtroStatus);
 }
 
-// Init handled by DOMContentLoaded
-</script>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script>
-// ═══════════════════════════════════════════════
-// FIREBASE CONFIG — substitua pelos seus dados
-// ═══════════════════════════════════════════════
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBVrmXB4Ut6eCJ8cpzF298eZ3piV9wJOwQ",
-  authDomain: "doremi---gestao.firebaseapp.com",
-  databaseURL: "https://doremi---gestao-default-rtdb.firebaseio.com",
-  projectId: "doremi---gestao",
-  storageBucket: "doremi---gestao.firebasestorage.app",
-  messagingSenderId: "914722537942",
-  appId: "1:914722537942:web:82229b2cb5949fac36e477"
-};
-// ═══════════════════════════════════════════════
-
-const USUARIO = "lucas";
-const SENHA_HASH = "doremi2024"; // Em produção use hash, mas para uso pessoal está ok
-
-let firebaseReady = false;
-let fbdb = null;
-let syncStatus = 'local'; // 'local' | 'synced' | 'error'
-let firstRenderDone = false;
-
-function initFirebase() {
-  try {
-    if (FIREBASE_CONFIG.apiKey === "COLE_SUA_API_KEY_AQUI") {
-      console.log("Firebase não configurado — usando localStorage");
-      return;
-    }
-    firebase.initializeApp(FIREBASE_CONFIG);
-    fbdb = firebase.database();
-    firebaseReady = true;
-    syncStatus = 'synced';
-    console.log("Firebase conectado!");
-    // Escuta mudanças em tempo real
-    fbdb.ref('doremi/dados').on('value', snap => {
-      const val = snap.val();
-      if (val) {
-        db = val;
-        localStorage.setItem(STORE, JSON.stringify(db));
-        // Only re-render after first render is done (avoid overriding initial navigate)
-        if (firstRenderDone) {
-          const content = document.getElementById('content');
-          if (content && content.innerHTML.trim() !== '') {
-            navigate(getCurrentPage());
-          }
-        }
-      }
-    });
-  } catch(e) {
-    console.error("Firebase erro:", e);
-    syncStatus = 'error';
-  }
+function filtrarAlunos(tipo) {
+  filtroStatus = tipo;
+  navigate('alunos');
 }
 
-function saveToCloud() {
-  save();
-  if (!firebaseReady || !fbdb) return;
-  fbdb.ref('doremi/dados').set(db)
-    .then(() => { syncStatus = 'synced'; updateSyncUI(); })
-    .catch(e => { syncStatus = 'error'; updateSyncUI(); console.error(e); });
+function renderAlunosTabela(tipo) {
+  const lista = tipo === 'Ativo' ? getAtivos() : db.alunos.filter(a => a.status !== 'Ativo');
+  const tbody = document.getElementById('alunos-tbody');
+  if (!tbody) return;
+  if (!lista.length) { tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><p>Nenhum aluno${tipo==='Ativo'?' ativo':' inativo'}</p></div></td></tr>`; return; }
+  tbody.innerHTML = lista.map(a => `<tr>
+    <td><div class="avatar">${initials(a.nome)}</div></td>
+    <td><div style="font-weight:500">${a.nome}</div>${a.responsavel?`<div style="font-size:11px;color:var(--text3)">Resp: ${a.responsavel}</div>`:''}</td>
+    <td>${a.instrumento||'—'}</td>
+    <td>${a.professor||'—'}</td>
+    <td style="font-family:'DM Mono',monospace;font-weight:500">${fmt(a.valor)}</td>
+    <td><span class="chip">${a.pgto}</span></td>
+    <td><span class="badge badge-${a.status.toLowerCase()}">${a.status}</span></td>
+    <td style="display:flex;gap:6px">
+      <button class="btn btn-sm" onclick="abrirModalAluno(${a.id})">Editar</button>
+      <button class="btn-green btn btn-sm" onclick="abrirWhats(${a.id},'${MES_ATUAL}')">WhatsApp</button>
+    </td>
+  </tr>`).join('');
 }
 
-function updateSyncUI() {
-  const dot = document.getElementById('sync-dot');
-  if (!dot) return;
-  dot.className = 'sync-dot' + (syncStatus === 'synced' ? '' : syncStatus === 'error' ? ' error' : ' offline');
-  dot.title = syncStatus === 'synced' ? 'Sincronizado com a nuvem' : syncStatus === 'error' ? 'Erro ao sincronizar' : 'Salvando localmente';
+function abrirModalAluno(id) {
+  const a = id ? db.alunos.find(x => x.id === id) : null;
+  const m = document.createElement('div');
+  m.className = 'modal-overlay'; m.id = 'modal-aluno';
+  m.innerHTML = `<div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">${a ? 'Editar aluno' : 'Novo aluno'}</span>
+      <button class="modal-close" onclick="fecharModal('modal-aluno')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Nome completo</label><input type="text" id="f-nome" value="${a?.nome||''}" placeholder="Nome do aluno"></div>
+        <div class="form-group"><label>Instrumento</label><input type="text" id="f-instr" value="${a?.instrumento||''}" placeholder="ex: Violão, Piano..."></div>
+        <div class="form-group"><label>Professor</label><input type="text" id="f-prof" value="${a?.professor||''}" placeholder="Nome do professor"></div>
+        <div class="form-group"><label>Responsável (opcional)</label><input type="text" id="f-resp" value="${a?.responsavel||''}" placeholder="Usado na mensagem WhatsApp"></div>
+        <div class="form-group"><label>Mensalidade (R$)</label><input type="number" id="f-valor" value="${a?.valor||''}" placeholder="0.00" step="0.01"></div>
+        <div class="form-group"><label>Dia de vencimento</label><input type="number" id="f-dia" value="${a?.dia||''}" min="1" max="31" placeholder="ex: 10"></div>
+        <div class="form-group"><label>Telefone WhatsApp</label><input type="text" id="f-tel" value="${a?.tel||''}" placeholder="5551999990000 (sem espaços ou +)"></div>
+        <div class="form-group"><label>Forma de pagamento</label>
+          <select id="f-pgto">${['Pix Júlia','Pix Lucas','Dinheiro'].map(p=>`<option ${a?.pgto===p?'selected':''}>${p}</option>`).join('')}</select>
+        </div>
+        <div class="form-group"><label>Status</label>
+          <select id="f-status">${['Ativo','Inativo','Trancado'].map(s=>`<option ${a?.status===s?'selected':''}>${s}</option>`).join('')}</select>
+        </div>
+        <div class="form-group"><label>Mês de entrada</label>
+          <select id="f-mes">${MESES.map(m=>`<option ${a?.mesEntrada===m?'selected':''}>${m}</option>`).join('')}</select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${a?`<button class="btn" onclick="excluirAluno(${a.id})" style="margin-right:auto;color:var(--red);border-color:var(--red)">Excluir</button>`:''}
+      <button class="btn" onclick="fecharModal('modal-aluno')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarAluno(${a?.id||0})">Salvar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if(e.target===m) fecharModal('modal-aluno'); });
 }
 
-let currentPageName = 'inicio';
-function getCurrentPage() { return currentPageName; }
-
-// LOGIN
-function doLogin() {
-  const u = document.getElementById('l-user').value.trim();
-  const p = document.getElementById('l-pass').value;
-  const err = document.getElementById('login-error');
-  if (u === USUARIO && p === SENHA_HASH) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-app').style.display = 'flex';
-    sessionStorage.setItem('doremi_auth', '1');
-    initFirebase();
-    navigate('inicio');
-  } else {
-    err.textContent = 'Usuário ou senha incorretos';
-    document.getElementById('l-pass').value = '';
-    setTimeout(() => err.textContent = '', 3000);
-  }
-}
-
-function doLogout() {
-  if (!confirm('Deseja sair do sistema?')) return;
-  sessionStorage.removeItem('doremi_auth');
-  document.getElementById('main-app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('l-user').value = '';
-  document.getElementById('l-pass').value = '';
-}
-
-// Manter sessão ao recarregar a página
-window.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem('doremi_auth') === '1') {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-app').style.display = 'flex';
-    initFirebase();
-    requestAnimationFrame(() => setTimeout(() => navigate('inicio'), 50));
-  }
-});
-
-// BACKUP
-function exportarDados() {
-  const json = JSON.stringify(db, null, 2);
-  const blob = new Blob([json], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'backup_doremi_' + new Date().toISOString().split('T')[0] + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importarDados() {
-  const input = document.createElement('input');
-  input.type = 'file'; input.accept = '.json';
-  input.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        const dados = JSON.parse(ev.target.result);
-        if (!dados.alunos) throw new Error('Arquivo inválido');
-        if (!confirm('Isso vai substituir todos os dados atuais. Continuar?')) return;
-        db = dados;
-        saveToCloud();
-        navigate(currentPageName);
-        alert('Dados importados com sucesso!');
-      } catch(err) {
-        alert('Erro ao importar: ' + err.message);
-      }
-    };
-    reader.readAsText(file);
+function salvarAluno(id) {
+  const nome = document.getElementById('f-nome').value.trim();
+  if (!nome) { toast('Nome é obrigatório'); return; }
+  const obj = {
+    nome, instrumento: document.getElementById('f-instr').value.trim(),
+    professor: document.getElementById('f-prof').value.trim(),
+    responsavel: document.getElementById('f-resp').value.trim(),
+    valor: parseFloat(document.getElementById('f-valor').value)||0,
+    dia: parseInt(document.getElementById('f-dia').value)||10,
+    tel: document.getElementById('f-tel').value.trim().replace(/\D/g,''),
+    pgto: document.getElementById('f-pgto').value,
+    status: document.getElementById('f-status').value,
+    mesEntrada: document.getElementById('f-mes').value
   };
-  input.click();
+  if (id) { Object.assign(db.alunos.find(a=>a.id===id), obj); toast('Aluno atualizado!'); }
+  else { db.alunos.push({ id: db.nextId++, ...obj }); toast('Aluno cadastrado!'); }
+  saveDB(); fecharModal('modal-aluno'); navigate('alunos');
 }
-</script>
 
+function excluirAluno(id) {
+  if (!confirm('Excluir este aluno permanentemente?')) return;
+  db.alunos = db.alunos.filter(a => a.id !== id);
+  db.pagamentos = db.pagamentos.filter(p => p.alunoId !== id);
+  saveDB(); fecharModal('modal-aluno'); toast('Aluno excluído'); navigate('alunos');
+}
+
+// ══════════════════════════════════
+// PÁGINA: MENSALIDADES
+// ══════════════════════════════════
+let mesSel = MES_ATUAL;
+function renderMensalidades(c, tb) {
+  tb.innerHTML = `<select class="btn btn-sm" id="sel-mes" style="min-width:120px" onchange="trocarMes(this.value)">${MESES.map(m=>`<option ${m===mesSel?'selected':''}>${m}</option>`).join('')}</select>`;
+  c.innerHTML = '<div id="mens-wrap"></div>';
+  renderMensalidadesConteudo(mesSel);
+}
+
+function trocarMes(mes) { mesSel = mes; renderMensalidadesConteudo(mes); }
+
+function renderMensalidadesConteudo(mes) {
+  const ativos = getAtivos();
+  const pags = getPagMes(mes);
+  const totalPrev = ativos.reduce((s,a)=>s+a.valor,0);
+  const totalPago = pags.filter(p=>p.status==='Pago').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
+  const totalAtras = pags.filter(p=>p.status==='Atrasado').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
+
+  document.getElementById('mens-wrap').innerHTML = `
+  <div class="metrics-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px">
+    <div class="metric"><div class="metric-label">Previsto</div><div class="metric-inner"><div class="metric-accent" style="background:var(--blue)"></div><div class="metric-value" style="font-size:20px">${fmt(totalPrev)}</div></div></div>
+    <div class="metric"><div class="metric-label">Recebido</div><div class="metric-inner"><div class="metric-accent" style="background:var(--green)"></div><div class="metric-value" style="font-size:20px;color:var(--green)">${fmt(totalPago)}</div></div></div>
+    <div class="metric"><div class="metric-label">Em atraso</div><div class="metric-inner"><div class="metric-accent" style="background:${totalAtras>0?'var(--red)':'var(--green)'}"></div><div class="metric-value" style="font-size:20px;color:${totalAtras>0?'var(--red)':'var(--green)'}">${fmt(totalAtras)}</div></div></div>
+  </div>
+  <div class="card" style="padding:0">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Aluno</th><th>Mensalidade</th><th>Aulas dadas / total</th><th>Valor a cobrar</th><th>Forma pgto</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody>${ativos.map(a => {
+        const p = getPagAluno(a.id, mes);
+        const aulasDadas = p?.aulasDadas ?? 4;
+        const totalAulas = p?.totalAulas ?? 4;
+        const valCobrar = p?.valorAjustado ?? a.valor;
+        const st = p?.status || 'Aguardando';
+        const stClass = st.toLowerCase();
+        return `<tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">${initials(a.nome)}</div><div><div style="font-weight:500">${a.nome}</div>${a.responsavel?`<div style="font-size:11px;color:var(--text3)">${a.responsavel}</div>`:''}</div></div></td>
+          <td style="font-family:'DM Mono',monospace">${fmt(a.valor)}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input class="aulas-input" type="number" min="0" max="20" value="${aulasDadas}" onchange="atualizarAulas(${a.id},'${mes}',this.value,${totalAulas},${a.valor})">
+              <span style="color:var(--text3)">/</span>
+              <input class="aulas-input" type="number" min="1" max="20" value="${totalAulas}" onchange="atualizarTotalAulas(${a.id},'${mes}',${aulasDadas},this.value,${a.valor})">
+            </div>
+          </td>
+          <td style="font-family:'DM Mono',monospace;font-weight:600">${fmt(valCobrar)}</td>
+          <td><span class="chip">${a.pgto}</span></td>
+          <td>
+            <select class="status-sel ${stClass}" onchange="atualizarStatus(${a.id},'${mes}',this.value,this)">
+              ${['Aguardando','Pago','Atrasado'].map(s=>`<option ${st===s?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </td>
+          <td><button class="btn-green btn btn-sm" onclick="abrirWhats(${a.id},'${mes}')"><svg width="11" height="11" viewBox="0 0 16 16" fill="white"><path d="M8 2C4.7 2 2 4.5 2 7.5c0 1 .3 2 .8 2.8L2 14l3.8-.8c.7.4 1.5.6 2.2.6 3.3 0 6-2.5 6-5.5S11.3 2 8 2z"/></svg> WhatsApp</button></td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+function atualizarAulas(alunoId, mes, aulasDadas, totalAulas, valorBase) {
+  const p = getOuCriaPag(alunoId, mes);
+  p.aulasDadas = parseInt(aulasDadas)||0;
+  p.totalAulas = parseInt(totalAulas)||4;
+  p.valorAjustado = calcValorAjustado(valorBase, p.aulasDadas, p.totalAulas);
+  p.data = new Date().toISOString();
+  saveDB(); renderMensalidadesConteudo(mes);
+}
+function atualizarTotalAulas(alunoId, mes, aulasDadas, totalAulas, valorBase) {
+  atualizarAulas(alunoId, mes, aulasDadas, totalAulas, valorBase);
+}
+function atualizarStatus(alunoId, mes, status, sel) {
+  const p = getOuCriaPag(alunoId, mes);
+  p.status = status; p.data = new Date().toISOString();
+  sel.className = 'status-sel ' + status.toLowerCase();
+  saveDB(); toast('Status atualizado: ' + status);
+}
+
+// ══════════════════════════════════
+// PÁGINA: WHATSAPP
+// ══════════════════════════════════
+function renderWhatsApp(c, tb) {
+  const ativos = getAtivos();
+  tb.innerHTML = `
+    <select class="btn btn-sm" id="sel-mes-wa" style="min-width:120px">${MESES.map(m=>`<option ${m===MES_ATUAL?'selected':''}>${m}</option>`).join('')}</select>
+    <button class="btn btn-primary btn-sm" onclick="enviarTodos()">Enviar para todos</button>`;
+
+  c.innerHTML = `
+  <div class="card" style="margin-bottom:16px;padding:16px 18px;background:var(--green-light);border-color:var(--green)">
+    <div style="display:flex;align-items:flex-start;gap:12px">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="var(--green)" style="flex-shrink:0;margin-top:2px"><path d="M8 2C4.7 2 2 4.5 2 7.5c0 1 .3 2 .8 2.8L2 14l3.8-.8c.7.4 1.5.6 2.2.6 3.3 0 6-2.5 6-5.5S11.3 2 8 2z"/></svg>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:3px">Como funciona</div>
+        <div style="font-size:12px;color:var(--text2)">Clique em "WhatsApp" para abrir a conversa com a mensagem já preenchida com o valor correto e a chave Pix. O botão "Enviar para todos" abre os links em sequência.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="card" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Chave Pix — Júlia</div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500">${PIX['Pix Júlia'].chave}</div>
+    </div>
+    <div class="card" style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Chave Pix — Lucas</div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500">${PIX['Pix Lucas'].chave}</div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Aluno</th><th>Contato</th><th>Valor a cobrar</th><th>Forma pgto</th><th>Status</th><th>Prévia da mensagem</th><th>Ação</th></tr></thead>
+      <tbody>${ativos.map(a => {
+        const mes = MES_ATUAL;
+        const p = getPagAluno(a.id, mes);
+        const val = p?.valorAjustado ?? a.valor;
+        const st = p?.status || 'Aguardando';
+        const msg = gerarMsgWhats(a, mes, val);
+        const preview = msg.substring(0,60)+'...';
+        return `<tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">${initials(a.nome)}</div><div style="font-weight:500">${a.nome}</div></div></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${a.tel||'—'}</td>
+          <td style="font-family:'DM Mono',monospace;font-weight:600">${fmt(val)}</td>
+          <td><span class="chip">${a.pgto}</span></td>
+          <td><span class="badge badge-${st.toLowerCase()}">${st}</span></td>
+          <td style="font-size:11px;color:var(--text3);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${msg.replace(/"/g,'&quot;')}">${preview}</td>
+          <td><button class="btn-green btn btn-sm" onclick="abrirWhats(${a.id},'${mes}')"><svg width="11" height="11" viewBox="0 0 16 16" fill="white"><path d="M8 2C4.7 2 2 4.5 2 7.5c0 1 .3 2 .8 2.8L2 14l3.8-.8c.7.4 1.5.6 2.2.6 3.3 0 6-2.5 6-5.5S11.3 2 8 2z"/></svg> Abrir</button></td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+function enviarTodos() {
+  const ativos = getAtivos();
+  const mesSel2 = document.getElementById('sel-mes-wa')?.value || MES_ATUAL;
+  if (!ativos.length) { toast('Nenhum aluno ativo'); return; }
+  if (!confirm(`Abrir WhatsApp para ${ativos.length} alunos? Os links abrirão em sequência.`)) return;
+  ativos.forEach((a, i) => setTimeout(() => abrirWhats(a.id, mesSel2), i * 1000));
+}
+
+// ══════════════════════════════════
+// PÁGINA: FINANCEIRO
+// ══════════════════════════════════
+function renderFinanceiro(c) {
+  const totalGeral = db.pagamentos.filter(p=>p.status==='Pago').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
+  const byPgto = ['Pix Júlia','Pix Lucas','Dinheiro'].map(tipo => {
+    const alunosTipo = db.alunos.filter(a=>a.pgto===tipo);
+    const pago = db.pagamentos.filter(p=>p.status==='Pago'&&alunosTipo.find(a=>a.id===p.alunoId)).reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
+    return { tipo, pago, alunos: alunosTipo.filter(a=>a.status==='Ativo').length };
+  });
+
+  const byMes = MESES.map(mes => {
+    const pags = getPagMes(mes);
+    const ativos = getAtivos();
+    const prev = ativos.reduce((s,a)=>s+a.valor,0);
+    const pago = pags.filter(p=>p.status==='Pago').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
+    const atras = pags.filter(p=>p.status==='Atrasado').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
+    const qtdPago = pags.filter(p=>p.status==='Pago').length;
+    return { mes, prev, pago, atras, qtdPago };
+  });
+
+  c.innerHTML = `
+  <div class="metrics-grid" style="margin-bottom:16px">
+    <div class="metric"><div class="metric-label">Total recebido 2025</div><div class="metric-inner"><div class="metric-accent" style="background:var(--green)"></div><div class="metric-value" style="font-size:18px;color:var(--green)">${fmt(totalGeral)}</div></div></div>
+    ${byPgto.map(b=>`<div class="metric"><div class="metric-label">${b.tipo}</div><div class="metric-inner"><div class="metric-accent" style="background:${b.tipo==='Pix Júlia'?'var(--green)':b.tipo==='Pix Lucas'?'var(--blue)':'var(--amber)'}"></div><div class="metric-value" style="font-size:18px">${fmt(b.pago)}</div></div><div class="metric-sub">${b.alunos} alunos ativos</div></div>`).join('')}
+  </div>
+
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
+    <div class="card" style="padding:0">
+      <div class="card-head"><span class="card-title">Resumo mensal — 2025</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Mês</th><th>Previsto</th><th>Recebido</th><th>Atrasado</th><th>Pgtos</th><th>% recebido</th></tr></thead>
+        <tbody>${byMes.map(({mes,prev,pago,atras,qtdPago}) => {
+          const pct = prev>0?Math.round(pago/prev*100):0;
+          const isCurrent = mes===MES_ATUAL;
+          return `<tr style="${isCurrent?'background:var(--purple-light)':''}">
+            <td style="font-weight:${isCurrent?600:400}">${mes}${isCurrent?` <span class="badge badge-ativo" style="font-size:9px">atual</span>`:''}</td>
+            <td style="font-family:'DM Mono',monospace">${fmt(prev)}</td>
+            <td style="font-family:'DM Mono',monospace;color:${pago>0?'var(--green)':'var(--text3)'};font-weight:${pago>0?600:400}">${fmt(pago)}</td>
+            <td style="font-family:'DM Mono',monospace;color:${atras>0?'var(--red)':'var(--text3)'}">${fmt(atras)}</td>
+            <td>${qtdPago}</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="pgto-track" style="width:70px"><div class="pgto-fill" style="width:${pct}%;background:var(--green)"></div></div>
+                <span style="font-size:11px;font-weight:600;font-family:'DM Mono',monospace">${pct}%</span>
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="card-title">Por forma de pagamento</span></div>
+      <div class="card-body">
+        ${byPgto.map(b => {
+          const pct = totalGeral>0?Math.round(b.pago/totalGeral*100):0;
+          const cor = b.tipo==='Pix Júlia'?'var(--green)':b.tipo==='Pix Lucas'?'var(--blue)':'var(--amber)';
+          return `<div style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;font-weight:500">${b.tipo}</span>
+              <span style="font-size:12px;font-family:'DM Mono',monospace;font-weight:600">${fmt(b.pago)}</span>
+            </div>
+            <div class="pgto-track"><div class="pgto-fill" style="width:${pct}%;background:${cor}"></div></div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">${pct}% do total • ${b.alunos} alunos</div>
+          </div>`;
+        }).join('')}
+        <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px">
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:12px;font-weight:600">Total recebido</span>
+            <span style="font-size:13px;font-family:'DM Mono',monospace;font-weight:700;color:var(--green)">${fmt(totalGeral)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════
+// UTILS
+// ══════════════════════════════════
+function fecharModal(id) { document.getElementById(id)?.remove(); }
+
+// ── INIT ──
+updateNavCounts();
+navigate('inicio');
+</script>
 </body>
 </html>
