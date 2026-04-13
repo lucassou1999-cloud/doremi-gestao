@@ -287,6 +287,9 @@ function navigate(page){
 
 // INÍCIO
 function renderInicio(){
+  const c = document.getElementById('content');
+  if (!c) return;
+  firstRenderDone = true;
   const ativos=getAtivos();
   const pags=getPagMes(MES_ATUAL);
   const totalPrev=ativos.reduce((s,a)=>s+a.valor,0);
@@ -340,6 +343,7 @@ function renderInicio(){
 // ALUNOS
 let filtroStatus='Ativo';
 function renderAlunos(){
+  firstRenderDone = true;
   document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-primary btn-sm" onclick="openModalAluno()">+ Novo aluno</button>`;
   const ativos=db.alunos.filter(a=>a.status==='Ativo').length;
   const inativos=db.alunos.filter(a=>a.status!=='Ativo').length;
@@ -418,6 +422,7 @@ function closeModal(){document.getElementById('modal-root').innerHTML='';}
 // MENSALIDADES
 let mesSel=MES_ATUAL;
 function renderMensalidades(){
+  firstRenderDone = true;
   document.getElementById('topbar-actions').innerHTML=`<select id="mes-sel" class="btn btn-sm" onchange="mesSel=this.value;renderMensalidadesTabela()" style="padding:5px 10px">${MESES.map(m=>`<option ${m===mesSel?'selected':''}>${m}</option>`).join('')}</select>`;
   document.getElementById('content').innerHTML='<div id="mens-wrap"></div>';
   renderMensalidadesTabela();
@@ -472,6 +477,7 @@ function updStatus(id,mes,st){
 
 // WHATSAPP
 function renderWhatsApp(){
+  firstRenderDone = true;
   const ativos=getAtivos();
   document.getElementById('content').innerHTML=`
   <div class="card" style="margin-bottom:16px">
@@ -537,6 +543,7 @@ function enviarTodos(){
 
 // FINANCEIRO
 function renderFinanceiro(){
+  firstRenderDone = true;
   const totalRec=db.pagamentos.filter(p=>p.status==='Pago').reduce((s,p)=>s+(p.valorAjustado||p.valor),0);
   const byPgto=['Pix Júlia','Pix Lucas','Dinheiro'].map(tipo=>{
     const al=db.alunos.filter(a=>a.pgto===tipo);
@@ -602,6 +609,7 @@ const SENHA_HASH = "doremi2024"; // Em produção use hash, mas para uso pessoal
 let firebaseReady = false;
 let fbdb = null;
 let syncStatus = 'local'; // 'local' | 'synced' | 'error'
+let firstRenderDone = false;
 
 function initFirebase() {
   try {
@@ -620,8 +628,13 @@ function initFirebase() {
       if (val) {
         db = val;
         localStorage.setItem(STORE, JSON.stringify(db));
-        const pt = document.getElementById('page-title');
-        if (pt) navigate(getCurrentPage());
+        // Only re-render after first render is done (avoid overriding initial navigate)
+        if (firstRenderDone) {
+          const content = document.getElementById('content');
+          if (content && content.innerHTML.trim() !== '') {
+            navigate(getCurrentPage());
+          }
+        }
       }
     });
   } catch(e) {
@@ -681,6 +694,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-app').style.display = 'flex';
     initFirebase();
+    requestAnimationFrame(() => setTimeout(() => navigate('inicio'), 50));
   }
 });
 
