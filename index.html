@@ -164,6 +164,70 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .search-bar svg{flex-shrink:0;opacity:.4;width:14px;height:14px}
 .search-bar input{background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%;font-family:'DM Sans',sans-serif}
 .search-bar input::placeholder{color:var(--text3)}
+
+/* ══ MOBILE ══ */
+@media(max-width:768px){
+  .sidebar{display:none}
+  #app-screen .app{flex-direction:column}
+  .main{height:100vh;display:flex;flex-direction:column}
+  .topbar{height:52px;padding:0 14px}
+  .page-title{font-size:15px}
+  .content{padding:14px;padding-bottom:80px;flex:1;overflow-y:auto}
+
+  /* Bottom nav */
+  .mobile-nav{display:flex!important}
+
+  /* Metrics */
+  .metrics-grid{grid-template-columns:1fr 1fr!important;gap:10px}
+  .metric{padding:12px}
+  .metric-value{font-size:18px!important}
+
+  /* 2-col grids → 1 col */
+  .section-two-col{grid-template-columns:1fr!important}
+
+  /* Tables → card style */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{font-size:12px;min-width:500px}
+  th,td{padding:8px 10px}
+
+  /* Buttons */
+  .btn-primary{padding:8px 14px;font-size:12px}
+  .topbar-actions .sync-badge{display:none}
+
+  /* Modal */
+  .modal{width:95vw;margin:10px}
+  .form-grid{grid-template-columns:1fr!important}
+
+  /* Search */
+  .search-bar{margin-bottom:12px}
+
+  /* Cards */
+  .card-head{padding:12px 14px}
+  .card-body{padding:12px 14px}
+}
+@media(min-width:769px){
+  .mobile-nav{display:none!important}
+}
+
+/* Mobile bottom nav */
+.mobile-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);
+  border-top:1px solid var(--border2);
+  display:flex;z-index:500;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.mobile-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:8px 4px;gap:3px;
+  font-size:10px;color:var(--text3);cursor:pointer;
+  border:none;background:none;font-family:'DM Sans',sans-serif;
+  transition:color .12s;
+}
+.mobile-nav-item.active{color:var(--teal)}
+.mobile-nav-item svg{width:20px;height:20px}
+.mobile-nav-item span{font-size:10px;font-weight:500}
+
 </style>
 </head>
 <body>
@@ -228,6 +292,31 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     </div>
     <div class="content" id="content"></div>
   </div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-item active" data-page="inicio" onclick="navigate('inicio');updateMobileNav('inicio')">
+    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2L2 7v7h4v-4h4v4h4V7z"/></svg>
+    <span>Início</span>
+  </button>
+  <button class="mobile-nav-item" data-page="alunos" onclick="navigate('alunos');updateMobileNav('alunos')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+    <span>Alunos</span>
+  </button>
+  <button class="mobile-nav-item" data-page="mensalidades" onclick="navigate('mensalidades');updateMobileNav('mensalidades')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M5 8h6M5 10.5h4"/></svg>
+    <span>Mensalidades</span>
+  </button>
+  <button class="mobile-nav-item" data-page="whatsapp" onclick="navigate('whatsapp');updateMobileNav('whatsapp')">
+    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2C4.7 2 2 4.5 2 7.5c0 1 .3 2 .8 2.8L2 14l3.8-.8c.7.4 1.5.6 2.2.6 3.3 0 6-2.5 6-5.5S11.3 2 8 2z"/></svg>
+    <span>WhatsApp</span>
+  </button>
+  <button class="mobile-nav-item" data-page="financeiro" onclick="navigate('financeiro');updateMobileNav('financeiro')">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><polyline points="2,12 5,8 8,10 11,5 14,3"/></svg>
+    <span>Relatórios</span>
+  </button>
+</nav>
+
 </div>
 </div>
 
@@ -407,6 +496,13 @@ function filterBySearch(list, query) {
 // NAVEGAÇÃO
 // ══════════════════════════════════
 let currentPage = '';
+
+function updateMobileNav(page) {
+  document.querySelectorAll('.mobile-nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.page === page);
+  });
+}
+
 function navigate(page) {
   currentPage = page;
   searchQuery = '';
@@ -465,7 +561,7 @@ function renderInicio(c) {
       <div class="metric-sub">${pags.filter(p=>p.status==='Atrasado').length} alunos</div>
     </div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="section-two-col">
     <div class="card">
       <div class="card-head"><span class="card-title">Recebimento por forma de pgto — ${MES_ATUAL}</span></div>
       <div class="card-body" id="pgto-bars"></div>
@@ -688,7 +784,7 @@ function renderWhatsApp(c, tb) {
   const ativos = filterBySearch(getAtivos(), searchQuery);
   c.innerHTML = `
   ${searchBar('Pesquisar aluno...', 'pesquisarWA')}
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px" class="section-two-col">
     <div class="card" style="padding:14px 16px"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Chave Pix — Júlia</div><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500">${PIX['Pix Júlia'].chave}</div></div>
     <div class="card" style="padding:14px 16px"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Chave Pix — Lucas</div><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500">${PIX['Pix Lucas'].chave}</div></div>
   </div>
@@ -732,7 +828,7 @@ function renderFinanceiro(c) {
     <div class="metric"><div class="metric-label">Total recebido 2025</div><div class="metric-inner"><div class="metric-accent" style="background:var(--green)"></div><div class="metric-value" style="font-size:17px;color:var(--green)">${fmt(totalGeral)}</div></div></div>
     ${byPgto.map(b=>`<div class="metric"><div class="metric-label">${b.tipo}</div><div class="metric-inner"><div class="metric-accent" style="background:${b.tipo==='Pix Júlia'?'var(--teal)':b.tipo==='Pix Lucas'?'var(--blue)':'var(--amber)'}"></div><div class="metric-value" style="font-size:17px">${fmt(b.pago)}</div></div><div class="metric-sub">${b.alunos} alunos ativos</div></div>`).join('')}
   </div>
-  <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px" class="section-two-col">
     <div class="card" style="padding:0"><div class="card-head"><span class="card-title">Resumo mensal — 2025</span></div><div class="table-wrap"><table>
       <thead><tr><th>Mês</th><th>Previsto</th><th>Recebido</th><th>Atrasado</th><th>Pgtos</th><th>% recebido</th></tr></thead>
       <tbody>${byMes.map(({mes,prev,pago,atras,qtd})=>{
