@@ -1179,73 +1179,207 @@ function gerarContrato(alunoId, tipo) {
 
 function gerarContratoClientSide(dados, tipo) {
   const status = document.getElementById('contrato-status');
-  
-  // Generate contract as HTML and convert to downloadable format
   const nomeContratante = dados.responsavel || dados.nome;
   const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const hoje = new Date();
   const dataAssinatura = `${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
-  const valor = dados.valor ? `R$ ${Number(dados.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}` : 'R$ _______';
-  const diaExtenso = {'5':'cinco','10':'dez','15':'quinze','20':'vinte','25':'vinte e cinco'}[String(dados.dia)] || dados.dia;
+  const valorFmt = dados.valor ? `R$ ${Number(dados.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}` : 'R$ _______';
+  const diaMap = {'1':'um','2':'dois','3':'três','4':'quatro','5':'cinco','6':'seis','7':'sete','8':'oito','9':'nove','10':'dez','11':'onze','12':'doze','13':'treze','14':'quatorze','15':'quinze','16':'dezesseis','17':'dezessete','18':'dezoito','19':'dezenove','20':'vinte','21':'vinte e um','22':'vinte e dois','23':'vinte e três','24':'vinte e quatro','25':'vinte e cinco','28':'vinte e oito','30':'trinta'};
+  const diaExtenso = diaMap[String(dados.dia)] || dados.dia;
+  const valorExtenso = dados.valorExtenso ? `(${dados.valorExtenso})` : '';
 
+  if (tipo === 'pdf') {
+    gerarPDF(dados, nomeContratante, dataAssinatura, valorFmt, diaExtenso, valorExtenso, status);
+    return;
+  }
+
+  // Generate real .docx using docx.js CDN
+  status.innerHTML = '<span class="spinner"></span> Gerando DOCX...';
+
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/docx@9.0.2/build/index.umd.min.js';
+  script.onload = () => {
+    try {
+      const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel } = docx;
+
+      function b(text) { return new TextRun({ text, bold: true, font: 'Arial', size: 24 }); }
+      function n(text) { return new TextRun({ text, font: 'Arial', size: 24 }); }
+      function clausula(txt) {
+        return new Paragraph({ children: [b(txt)], spacing: { before: 280, after: 120 } });
+      }
+      function corpo(children) {
+        return new Paragraph({ children, alignment: AlignmentType.JUSTIFIED, spacing: { before: 0, after: 180 } });
+      }
+      function linha(text, bold=false, center=false) {
+        return new Paragraph({
+          children: [bold ? b(text) : n(text)],
+          alignment: center ? AlignmentType.CENTER : AlignmentType.LEFT,
+          spacing: { before: 0, after: 80 }
+        });
+      }
+
+      const doc = new Document({
+        sections: [{
+          properties: {
+            page: {
+              size: { width: 11906, height: 16838 },
+              margin: { top: 1701, right: 1134, bottom: 1134, left: 1701 }
+            }
+          },
+          children: [
+            // Título
+            new Paragraph({
+              children: [b('CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS')],
+              alignment: AlignmentType.CENTER,
+              spacing: { before: 0, after: 480 }
+            }),
+
+            // Preâmbulo
+            corpo([
+              n('Pelo presente instrumento particular de contrato de prestação de serviços educacionais, de um lado a '),
+              b('ESCOLA DO RÉ MI'),
+              n(', inscrita no CNPJ sob o nº 35.483.341/0001-40, neste ato representada por seu responsável Sr. Lucas de Souza, doravante denominada '),
+              b('CONTRATADA'),
+              n('; e, de outro lado, '),
+              b(nomeContratante),
+              n(', inscrito(a) no CPF nº '),
+              b(dados.cpf || '___.___.___-__'),
+              n(', residente na '),
+              n(dados.endereco || '____________________________________________'),
+              n(', doravante denominado(a) '),
+              b('CONTRATANTE'),
+              n('; têm entre si, de forma justa e acordada, o presente Contrato de Prestação de Serviços, que se regerá pelas cláusulas e condições seguintes:'),
+            ]),
+
+            clausula('CLÁUSULA 1ª – DO OBJETO'),
+            corpo([
+              n('O presente contrato tem por objeto a prestação de serviços educacionais referentes ao curso de '),
+              b(dados.instrumento || '_______________'),
+              n(' ministrado pela CONTRATADA à CONTRATANTE.'),
+            ]),
+
+            clausula('CLÁUSULA 2ª – DAS AULAS E DURAÇÃO'),
+            corpo([n('As aulas serão ministradas 1 (uma) vez por semana, conforme cronograma previamente estabelecido entre as partes. Cada aula terá duração padrão conforme o plano pedagógico da CONTRATADA.')]),
+
+            clausula('CLÁUSULA 3ª – DO PAGAMENTO'),
+            corpo([
+              n('O valor mensal devido pela CONTRATANTE à CONTRATADA será de '),
+              b(`${valorFmt} ${valorExtenso}`),
+              n(', devendo o pagamento ocorrer até o dia '),
+              b(`${dados.dia} (${diaExtenso})`),
+              n(' de cada mês, por meio de PIX, cartão de crédito (sujeito a taxas) ou em espécie, utilizando a chave CNPJ: '),
+              b('35.483.341/0001-40'),
+              n('.'),
+            ]),
+
+            clausula('CLÁUSULA 4ª – DAS FALTAS E REPOSIÇÕES'),
+            corpo([n('A CONTRATANTE deverá comunicar a ausência com antecedência mínima de 24 (vinte e quatro) horas. O não comparecimento sem aviso prévio não dará direito a reposição ou desconto. Em caso de falta do professor, a CONTRATADA se compromete a repor a aula no prazo máximo de 30 (trinta) dias.')]),
+
+            clausula('CLÁUSULA 5ª – DO REAJUSTE'),
+            corpo([n('O valor da mensalidade poderá sofrer reajuste anual de até 7% (sete por cento), a partir de 01 de janeiro de 2027, com base nos custos operacionais e índices inflacionários vigentes.')]),
+
+            clausula('CLÁUSULA 6ª – DO USO DE IMAGEM'),
+            corpo([n('A CONTRATANTE autoriza, de forma gratuita, o uso de imagem e voz da aluna em materiais de divulgação, redes sociais e campanhas institucionais da Escola Do Ré Mi, sem ônus ou vínculo trabalhista.')]),
+
+            clausula('CLÁUSULA 7ª – DA RESCISÃO CONTRATUAL'),
+            corpo([n('O presente contrato poderá ser rescindido por qualquer das partes mediante aviso prévio de 30 (trinta) dias. Em caso de desistência sem aviso prévio, será cobrada a mensalidade integral referente ao mês vigente.')]),
+
+            clausula('CLÁUSULA 8ª – DOS FERIADOS'),
+            corpo([n('Não haverá aulas nos feriados nacionais, estaduais ou municipais. As mensalidades serão cobradas normalmente nesses períodos, uma vez que o valor contratado refere-se à garantia de vaga, matrícula e planejamento pedagógico mensal, não estando vinculado a número específico de aulas, não sendo devidas reposições.')]),
+
+            clausula('CLÁUSULA 9ª – DAS DISPOSIÇÕES GERAIS'),
+            corpo([n('O não comparecimento às aulas, sem aviso prévio, não enseja direito à reposição.')]),
+            corpo([n('Durante os períodos de férias escolares ou recessos previamente comunicados pela instituição, as aulas poderão ser suspensas, permanecendo, contudo, a obrigatoriedade do pagamento da mensalidade, a qual se destina à garantia da vaga e da matrícula do aluno para o período letivo vigente.')]),
+            corpo([n('Na hipótese de o contratante optar pelo cancelamento das aulas durante os períodos de férias ou recessos, a vaga não será preservada, sendo que, para o retorno às atividades, o aluno deverá efetuar o pagamento de taxa de rematrícula, além do valor integral da mensalidade vigente à época da retomada das aulas, conforme disponibilidade de vagas.')]),
+
+            // Fecho
+            new Paragraph({ children: [n('E, por estarem as partes de pleno acordo com o disposto neste instrumento, firmam o presente contrato em duas vias de igual teor e forma, para que produza seus jurídicos e legais efeitos.')], alignment: AlignmentType.JUSTIFIED, spacing: { before: 240, after: 480 } }),
+
+            // Data
+            new Paragraph({ children: [n(`Novo Hamburgo/RS, ${dataAssinatura}.`)], spacing: { before: 0, after: 720 } }),
+
+            // Assinatura CONTRATADA
+            new Paragraph({ children: [n('_________________________________________')], spacing: { before: 0, after: 80 } }),
+            new Paragraph({ children: [b('Lucas de Souza')], spacing: { before: 0, after: 80 } }),
+            new Paragraph({ children: [n('Responsável – Escola Do Ré Mi')], spacing: { before: 0, after: 560 } }),
+
+            // Assinatura CONTRATANTE
+            new Paragraph({ children: [n('_________________________________________')], spacing: { before: 0, after: 80 } }),
+            new Paragraph({ children: [b(nomeContratante)], spacing: { before: 0, after: 80 } }),
+            new Paragraph({ children: [n('Contratante')], spacing: { before: 0, after: 0 } }),
+          ]
+        }]
+      });
+
+      Packer.toBlob(doc).then(blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Contrato_${nomeContratante.replace(/\s+/g,'_')}.docx`;
+        link.click();
+        URL.revokeObjectURL(url);
+        status.innerHTML = '<span style="color:var(--green)">✓ Contrato .docx gerado com formatação profissional!</span>';
+      });
+    } catch(e) {
+      status.innerHTML = '<span style="color:var(--red)">Erro: ' + e.message + '</span>';
+    }
+  };
+  script.onerror = () => {
+    status.innerHTML = '<span style="color:var(--red)">Erro ao carregar biblioteca. Verifique sua conexão.</span>';
+  };
+  document.head.appendChild(script);
+}
+
+function gerarPDF(dados, nomeContratante, dataAssinatura, valorFmt, diaExtenso, valorExtenso, status) {
+  const valorExtensoTxt = dados.valorExtenso ? `(${dados.valorExtenso})` : '';
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <style>
-body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.6;margin:3cm 2.5cm 2cm 3cm;color:#000}
-h1{font-size:13pt;text-align:center;margin-bottom:1.5em}
-.clausula{font-weight:bold;margin-top:1.2em;margin-bottom:0.3em}
-p{text-align:justify;margin:0.4em 0}
-.assinaturas{margin-top:3em}
-.linha-assinatura{margin-top:2.5em}
+  @page{margin:3cm 2.5cm 2.5cm 3cm}
+  body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.5;color:#000;text-align:justify}
+  h1{font-size:13pt;text-align:center;font-weight:bold;margin:0 0 1.8em 0}
+  .cl{font-weight:bold;margin:1.4em 0 0.3em 0}
+  p{margin:0 0 0.6em 0}
+  .assin{margin-top:3em}
+  .linha{margin-top:2.5em;border-top:1px solid #000;width:60%;padding-top:4px}
 </style></head><body>
 <h1>CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS</h1>
 <p>Pelo presente instrumento particular de contrato de prestação de serviços educacionais, de um lado a <strong>ESCOLA DO RÉ MI</strong>, inscrita no CNPJ sob o nº 35.483.341/0001-40, neste ato representada por seu responsável Sr. Lucas de Souza, doravante denominada <strong>CONTRATADA</strong>; e, de outro lado, <strong>${nomeContratante}</strong>, inscrito(a) no CPF nº <strong>${dados.cpf||'___.___.___-__'}</strong>, residente na ${dados.endereco||'____________________________________________'}, doravante denominado(a) <strong>CONTRATANTE</strong>; têm entre si, de forma justa e acordada, o presente Contrato de Prestação de Serviços, que se regerá pelas cláusulas e condições seguintes:</p>
-<p class="clausula">CLÁUSULA 1ª – DO OBJETO</p>
+<p class="cl">CLÁUSULA 1ª – DO OBJETO</p>
 <p>O presente contrato tem por objeto a prestação de serviços educacionais referentes ao curso de <strong>${dados.instrumento||'_______________'}</strong> ministrado pela CONTRATADA à CONTRATANTE.</p>
-<p class="clausula">CLÁUSULA 2ª – DAS AULAS E DURAÇÃO</p>
+<p class="cl">CLÁUSULA 2ª – DAS AULAS E DURAÇÃO</p>
 <p>As aulas serão ministradas 1 (uma) vez por semana, conforme cronograma previamente estabelecido entre as partes. Cada aula terá duração padrão conforme o plano pedagógico da CONTRATADA.</p>
-<p class="clausula">CLÁUSULA 3ª – DO PAGAMENTO</p>
-<p>O valor mensal devido pela CONTRATANTE à CONTRATADA será de <strong>${valor} ${dados.valorExtenso ? '('+dados.valorExtenso+')' : ''}</strong>, devendo o pagamento ocorrer até o dia <strong>${dados.dia} (${diaExtenso})</strong> de cada mês, por meio de PIX, cartão de crédito (sujeito a taxas) ou em espécie, utilizando a chave CNPJ: <strong>35.483.341/0001-40</strong>.</p>
-<p class="clausula">CLÁUSULA 4ª – DAS FALTAS E REPOSIÇÕES</p>
+<p class="cl">CLÁUSULA 3ª – DO PAGAMENTO</p>
+<p>O valor mensal devido pela CONTRATANTE à CONTRATADA será de <strong>${valorFmt} ${valorExtensoTxt}</strong>, devendo o pagamento ocorrer até o dia <strong>${dados.dia} (${diaExtenso})</strong> de cada mês, por meio de PIX, cartão de crédito (sujeito a taxas) ou em espécie, utilizando a chave CNPJ: <strong>35.483.341/0001-40</strong>.</p>
+<p class="cl">CLÁUSULA 4ª – DAS FALTAS E REPOSIÇÕES</p>
 <p>A CONTRATANTE deverá comunicar a ausência com antecedência mínima de 24 (vinte e quatro) horas. O não comparecimento sem aviso prévio não dará direito a reposição ou desconto. Em caso de falta do professor, a CONTRATADA se compromete a repor a aula no prazo máximo de 30 (trinta) dias.</p>
-<p class="clausula">CLÁUSULA 5ª – DO REAJUSTE</p>
+<p class="cl">CLÁUSULA 5ª – DO REAJUSTE</p>
 <p>O valor da mensalidade poderá sofrer reajuste anual de até 7% (sete por cento), a partir de 01 de janeiro de 2027, com base nos custos operacionais e índices inflacionários vigentes.</p>
-<p class="clausula">CLÁUSULA 6ª – DO USO DE IMAGEM</p>
+<p class="cl">CLÁUSULA 6ª – DO USO DE IMAGEM</p>
 <p>A CONTRATANTE autoriza, de forma gratuita, o uso de imagem e voz da aluna em materiais de divulgação, redes sociais e campanhas institucionais da Escola Do Ré Mi, sem ônus ou vínculo trabalhista.</p>
-<p class="clausula">CLÁUSULA 7ª – DA RESCISÃO CONTRATUAL</p>
+<p class="cl">CLÁUSULA 7ª – DA RESCISÃO CONTRATUAL</p>
 <p>O presente contrato poderá ser rescindido por qualquer das partes mediante aviso prévio de 30 (trinta) dias. Em caso de desistência sem aviso prévio, será cobrada a mensalidade integral referente ao mês vigente.</p>
-<p class="clausula">CLÁUSULA 8ª – DOS FERIADOS</p>
+<p class="cl">CLÁUSULA 8ª – DOS FERIADOS</p>
 <p>Não haverá aulas nos feriados nacionais, estaduais ou municipais. As mensalidades serão cobradas normalmente nesses períodos, uma vez que o valor contratado refere-se à garantia de vaga, matrícula e planejamento pedagógico mensal, não estando vinculado a número específico de aulas, não sendo devidas reposições.</p>
-<p class="clausula">CLÁUSULA 9ª – DAS DISPOSIÇÕES GERAIS</p>
+<p class="cl">CLÁUSULA 9ª – DAS DISPOSIÇÕES GERAIS</p>
 <p>O não comparecimento às aulas, sem aviso prévio, não enseja direito à reposição.</p>
 <p>Durante os períodos de férias escolares ou recessos previamente comunicados pela instituição, as aulas poderão ser suspensas, permanecendo, contudo, a obrigatoriedade do pagamento da mensalidade, a qual se destina à garantia da vaga e da matrícula do aluno para o período letivo vigente.</p>
 <p>Na hipótese de o contratante optar pelo cancelamento das aulas durante os períodos de férias ou recessos, a vaga não será preservada, sendo que, para o retorno às atividades, o aluno deverá efetuar o pagamento de taxa de rematrícula, além do valor integral da mensalidade vigente à época da retomada das aulas, conforme disponibilidade de vagas.</p>
-<p>E, por estarem as partes de pleno acordo com o disposto neste instrumento, firmam o presente contrato em duas vias de igual teor e forma, para que produza seus jurídicos e legais efeitos.</p>
+<p style="margin-top:1.5em">E, por estarem as partes de pleno acordo com o disposto neste instrumento, firmam o presente contrato em duas vias de igual teor e forma, para que produza seus jurídicos e legais efeitos.</p>
 <p style="margin-top:1.5em">Novo Hamburgo/RS, ${dataAssinatura}.</p>
-<div class="assinaturas">
-<div class="linha-assinatura">_________________________________________<br><strong>Lucas de Souza</strong><br>Responsável – Escola Do Ré Mi</div>
-<div class="linha-assinatura">_________________________________________<br><strong>${nomeContratante}</strong><br>Contratante</div>
+<div class="assin">
+  <div class="linha"><strong>Lucas de Souza</strong><br>Responsável – Escola Do Ré Mi</div>
+  <div class="linha"><strong>${nomeContratante}</strong><br>Contratante</div>
 </div>
 </body></html>`;
-
-  if (tipo === 'pdf') {
-    // Open print dialog for PDF
-    const win = window.open('', '_blank');
-    win.document.write(html);
-    win.document.close();
-    win.onload = () => { win.print(); };
-    status.innerHTML = '<span style="color:var(--green)">✓ Use Ctrl+P → Salvar como PDF para baixar.</span>';
-  } else {
-    // Download as HTML (opens in Word)
-    const blob = new Blob([html], {type: 'application/msword'});
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Contrato_${nomeContratante.replace(/\s+/g,'_')}.doc`;
-    link.click();
-    URL.revokeObjectURL(url);
-    status.innerHTML = '<span style="color:var(--green)">✓ Contrato baixado! Abra no Word para editar.</span>';
-  }
+  const win = window.open('','_blank','width=900,height=700');
+  win.document.write(html);
+  win.document.close();
+  win.onload = () => {
+    setTimeout(() => { win.print(); }, 400);
+  };
+  if (status) status.innerHTML = '<span style="color:var(--green)">✓ Janela aberta — use "Salvar como PDF" na impressão.</span>';
 }
+
 
 </script>
 </body>
