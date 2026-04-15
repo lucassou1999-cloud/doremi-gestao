@@ -702,9 +702,10 @@ function renderAlunosTabela(tipo) {
     <td style="font-family:'DM Mono',monospace">${fmt(a.valor)}</td>
     <td><span class="chip">${a.pgto}</span></td>
     <td><span class="badge badge-${a.status.toLowerCase()}">${a.status}</span></td>
-    <td style="display:flex;gap:6px">
+    <td style="display:flex;gap:6px;flex-wrap:wrap">
       <button class="btn btn-sm" onclick="abrirModalAluno('${a.id}')">Editar</button>
       <button class="btn-green btn btn-sm" onclick="abrirWhats('${a.id}','${MES_ATUAL}')">WhatsApp</button>
+      <button class="btn btn-sm" style="background:#2B579A;border-color:#2B579A;color:#fff;font-weight:600" onclick="abrirModalContrato('${a.id}')">&#128196; Contrato</button>
     </td>
   </tr>`).join('');
 }
