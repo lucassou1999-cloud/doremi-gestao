@@ -736,7 +736,7 @@ function renderAlunosTabela(tipo) {
   tbody.innerHTML = lista.map(a=>`<tr>
     <td><div class="avatar">${initials(a.nome)}</div></td>
     <td><div style="font-weight:500">${a.nome}</div>${a.responsavel?`<div style="font-size:11px;color:var(--text3)">Resp: ${a.responsavel}</div>`:''}</td>
-    <td>${a.instrumento||'—'}</td><td>${a.professor||'—'}</td>
+    <td>${Array.isArray(a.cursos)&&a.cursos.length?a.cursos.map(c=>`<span style="display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;background:var(--teal-light);color:var(--teal);margin:1px">${c}</span>`).join(''):(a.instrumento||'—')}</td><td>${a.professor||'—'}</td>
     <td style="font-family:'DM Mono',monospace">${fmt(a.valor)}</td>
     <td><span class="chip">${a.pgto}</span></td>
     <td><span class="badge badge-${a.status.toLowerCase()}">${a.status}</span></td>
@@ -755,12 +755,24 @@ function abrirModalAluno(id) {
     <div class="modal-head"><span class="modal-title">${a?'Editar aluno':'Novo aluno'}</span><button class="modal-close" onclick="fecharModal('modal-aluno')">×</button></div>
     <div class="modal-body"><div class="form-grid">
       <div class="form-group"><label>Nome completo</label><input type="text" id="f-nome" value="${a?.nome||''}"></div>
-      <div class="form-group"><label>Curso</label>
-        <select id="f-instr">
-          <option value="">— Selecionar curso —</option>
-          ${Object.values(state.cursos).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')).map(c=>`<option value="${c.nome}" ${a?.instrumento===c.nome?'selected':''}>${c.nome}</option>`).join('')}
-          ${a?.instrumento && !Object.values(state.cursos).find(c=>c.nome===a.instrumento) ? `<option value="${a.instrumento}" selected>${a.instrumento} (manual)</option>` : ''}
-        </select>
+      <div class="form-group" style="grid-column:1/-1">
+        <label>Cursos (selecione um ou mais)</label>
+        <div id="f-cursos-wrap" style="display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);min-height:42px">
+          ${(()=>{
+            const cursosAtivos = Array.isArray(a?.cursos) ? a.cursos : (a?.instrumento ? [a.instrumento] : []);
+            const todosCursos = Object.values(state.cursos).sort((x,y)=>x.nome.localeCompare(y.nome,'pt-BR'));
+            // Add manual curso if not in list
+            if (a?.instrumento && !todosCursos.find(c=>c.nome===a.instrumento)) todosCursos.push({nome:a.instrumento});
+            return todosCursos.map(c => {
+              const sel = cursosAtivos.includes(c.nome);
+              return `<label style="display:flex;align-items:center;gap:5px;padding:4px 10px;background:${sel?'var(--teal-light)':'var(--surface)'};border:1px solid ${sel?'var(--teal)':'var(--border2)'};border-radius:20px;cursor:pointer;font-size:12px;font-weight:${sel?600:400};color:${sel?'var(--teal)':'var(--text2)'}">
+                <input type="checkbox" value="${c.nome}" ${sel?'checked':''} onchange="toggleCurso(this)" style="display:none">
+                ${c.nome}
+              </label>`;
+            }).join('');
+          })()}
+          ${Object.values(state.cursos).length === 0 ? '<span style="font-size:12px;color:var(--text3)">Nenhum curso cadastrado. Adicione na aba Cursos primeiro.</span>' : ''}
+        </div>
       </div>
       <div class="form-group"><label>Professor</label>
         <select id="f-prof">
@@ -786,11 +798,31 @@ function abrirModalAluno(id) {
   document.body.appendChild(m);
   m.addEventListener('click', e=>{ if(e.target===m) fecharModal('modal-aluno'); });
 }
+
+function toggleCurso(cb) {
+  const label = cb.parentElement;
+  if (cb.checked) {
+    label.style.background = 'var(--teal-light)';
+    label.style.borderColor = 'var(--teal)';
+    label.style.color = 'var(--teal)';
+    label.style.fontWeight = '600';
+  } else {
+    label.style.background = 'var(--surface)';
+    label.style.borderColor = 'var(--border2)';
+    label.style.color = 'var(--text2)';
+    label.style.fontWeight = '400';
+  }
+}
+function getCursosSelected() {
+  return Array.from(document.querySelectorAll('#f-cursos-wrap input[type=checkbox]:checked')).map(cb => cb.value);
+}
+
 function salvarAluno(id) {
   const nome = document.getElementById('f-nome').value.trim();
   if (!nome) { toast('Nome obrigatório'); return; }
   const obj = {
-    nome, instrumento: document.getElementById('f-instr').value.trim(),
+    nome, cursos: getCursosSelected(),
+    instrumento: getCursosSelected().join(' + ') || '',
     professor: document.getElementById('f-prof').value.trim(),
     responsavel: document.getElementById('f-resp').value.trim(),
     valor: parseFloat(document.getElementById('f-valor').value)||0,
@@ -1037,7 +1069,7 @@ function renderCursos(c, tb) {
     <div class="table-wrap"><table>
       <thead><tr><th></th><th>Nome do curso</th><th>Alunos matriculados</th><th></th></tr></thead>
       <tbody>${cursosQ.length ? cursosQ.map(cur => {
-        const matriculados = getAtivos().filter(a => a.instrumento === cur.nome).length;
+        const matriculados = getAtivos().filter(a => Array.isArray(a.cursos) ? a.cursos.includes(cur.nome) : a.instrumento === cur.nome).length;
         const letra = cur.nome[0]?.toUpperCase()||'C';
         return `<tr>
           <td><div class="avatar" style="background:#0D2B1E;color:var(--green)">${letra}</div></td>
@@ -1136,7 +1168,7 @@ function abrirModalContrato(alunoId) {
         </div>
         <div class="form-group">
           <label>Curso / Instrumento</label>
-          <input type="text" id="ct-curso" value="${a.instrumento||''}">
+          <input type="text" id="ct-curso" value="${Array.isArray(a.cursos)&&a.cursos.length?a.cursos.join(' + '):a.instrumento||''}">
         </div>
         <div class="form-group">
           <label>Professor</label>
