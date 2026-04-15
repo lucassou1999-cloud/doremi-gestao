@@ -710,7 +710,7 @@ function abrirModalAluno(id) {
       <div class="form-group"><label>Curso</label>
         <select id="f-instr">
           <option value="">— Selecionar curso —</option>
-          ${Object.values(state.cursos).filter(c=>c.status==='Ativo').sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')).map(c=>`<option value="${c.nome}" ${a?.instrumento===c.nome?'selected':''}>${c.nome}</option>`).join('')}
+          ${Object.values(state.cursos).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')).map(c=>`<option value="${c.nome}" ${a?.instrumento===c.nome?'selected':''}>${c.nome}</option>`).join('')}
           ${a?.instrumento && !Object.values(state.cursos).find(c=>c.nome===a.instrumento) ? `<option value="${a.instrumento}" selected>${a.instrumento} (manual)</option>` : ''}
         </select>
       </div>
