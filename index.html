@@ -494,15 +494,50 @@ function calcValor(valorBase, aulasDadas, totalAulas) {
   if (!totalAulas || totalAulas <= 0) return valorBase;
   return Math.round((valorBase / totalAulas) * aulasDadas * 100) / 100;
 }
+function fmtValorMsg(val) {
+  return Math.floor(val) + ',' + String(Math.round((val % 1)*100)).padStart(2,'0');
+}
+
+function getFamilia(aluno, mes) {
+  // Returns all active alunos sharing the same responsável (non-empty)
+  if (!aluno.responsavel || !aluno.responsavel.trim()) return null;
+  const resp = aluno.responsavel.trim().toLowerCase();
+  const familia = getAtivos().filter(a =>
+    a.responsavel && a.responsavel.trim().toLowerCase() === resp
+  );
+  return familia.length > 1 ? familia : null;
+}
+
+function getValorFamilia(familia, mes) {
+  return familia.reduce((sum, a) => {
+    const p = getPagAluno(a.id, mes);
+    return sum + (p?.valorAjustado ?? a.valor);
+  }, 0);
+}
+
 function gerarMsgWhats(aluno, mes, val) {
-  const nome = aluno.responsavel || aluno.nome;
-  const inteiro = Math.floor(val);
-  const cents = String(Math.round((val % 1)*100)).padStart(2,'0');
+  const nomeResp = aluno.responsavel || aluno.nome;
+  const familia = getFamilia(aluno, mes);
+
+  // Pix key based on this aluno's payment method
   let pgto = '';
   if (aluno.pgto === 'Pix Júlia') pgto = ' Chave Pix: ' + PIX['Pix Júlia'].chave;
   else if (aluno.pgto === 'Pix Lucas') pgto = ' Chave Pix: ' + PIX['Pix Lucas'].chave;
   else pgto = ' Por favor acerte o valor na próxima aula.';
-  return 'Olá ' + nome + '! Sua mensalidade de *R$ ' + inteiro + ',' + cents + '* referente a ' + mes + ' vence em breve. Por favor realize o pagamento.' + pgto + ' Obrigado! 🎵';
+
+  // Individual value line
+  const valIndiv = '*R$ ' + fmtValorMsg(val) + '*';
+
+  if (familia) {
+    const totalFam = getValorFamilia(familia, mes);
+    const totalFmt = '*R$ ' + fmtValorMsg(totalFam) + '*';
+    return 'Olá ' + nomeResp + '! Sua mensalidade de ' + totalFmt + ' referente a '
+      + mes + ' vence em breve. Por favor realize o pagamento.' + pgto + ' Obrigado! 🎵';
+  }
+
+  // Single aluno — original message
+  return 'Olá ' + nomeResp + '! Sua mensalidade de ' + valIndiv + ' referente a '
+    + mes + ' vence em breve. Por favor realize o pagamento.' + pgto + ' Obrigado! 🎵';
 }
 function abrirWhats(alunoId, mes) {
   const a = Object.values(state.alunos).find(x => x.id === alunoId);
@@ -663,7 +698,10 @@ function renderInicio(c) {
   if (!pend.length) { ptEl.innerHTML='<div class="empty-state">Todos pagaram este mês! 🎉</div>'; return; }
   ptEl.innerHTML = `<table><thead><tr><th>Aluno</th><th>Mensalidade</th><th>Forma pgto</th><th>Status</th><th></th></tr></thead><tbody>
   ${pend.map(a => { const p=getPagAluno(a.id,MES_ATUAL); const st=p?.status||'Aguardando';
-    return `<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">${initials(a.nome)}</div><div><div style="font-weight:500">${a.nome}</div>${a.responsavel?`<div style="font-size:11px;color:var(--text3)">${a.responsavel}</div>`:''}</div></div></td><td style="font-family:'DM Mono',monospace">${fmt(a.valor)}</td><td><span class="chip">${a.pgto}</span></td><td><span class="badge badge-${st.toLowerCase()}">${st}</span></td><td><button class="btn-green btn" onclick="abrirWhats('${a.id}','${MES_ATUAL}')"><svg width="11" height="11" viewBox="0 0 16 16" fill="white"><path d="M8 2C4.7 2 2 4.5 2 7.5c0 1 .3 2 .8 2.8L2 14l3.8-.8c.7.4 1.5.6 2.2.6 3.3 0 6-2.5 6-5.5S11.3 2 8 2z"/></svg> Cobrar</button></td></tr>`;
+    return `<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="avatar">${initials(a.nome)}</div><div><div style="font-weight:500">${a.nome}</div>${a.responsavel?`<div style="font-size:11px;color:var(--text3)">${a.responsavel}</div>`:''}</div></div></td><td style="font-family:'DM Mono',monospace">${fmt(a.valor)}</td><td><span class="chip">${a.pgto}</span></td><td><span class="badge badge-${st.toLowerCase()}">${st}</span></td><td>
+  ${getFamilia(a,'${MES_ATUAL}') ? `<div style="font-size:10px;color:var(--teal);margin-bottom:3px">Família · R$ ${fmtValorMsg(getValorFamilia(getFamilia(a,'${MES_ATUAL}'),'${MES_ATUAL}'))}</div>` : ''}
+  <button class="btn-green btn btn-sm" onclick="abrirWhats('${a.id}','${MES_ATUAL}')"><svg width="11" height="11" viewBox="0 0 16 16" fill="white"><path d="M8 2C4.7 2 2 4.5 2 7.5c0 1 .3 2 .8 2.8L2 14l3.8-.8c.7.4 1.5.6 2.2.6 3.3 0 6-2.5 6-5.5S11.3 2 8 2z"/></svg> Cobrar</button>
+</td></tr>`;
   }).join('')}</tbody></table>`;
 }
 
