@@ -230,6 +230,15 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .mobile-nav-item svg{width:20px;height:20px}
 .mobile-nav-item span{font-size:10px;font-weight:500}
 
+
+.contrato-modal .modal{width:560px}
+.contrato-preview{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-size:12px;color:var(--text2);line-height:1.7;max-height:200px;overflow-y:auto;margin-top:12px;font-family:'DM Mono',monospace}
+.download-btns{display:flex;gap:10px;margin-top:16px}
+.btn-docx{background:#2B579A;border-color:#2B579A;color:#fff}
+.btn-docx:hover{background:#1e3f70}
+.btn-pdf{background:#D93025;border-color:#D93025;color:#fff}
+.btn-pdf:hover{background:#b02318}
+
 </style>
 </head>
 <body>
@@ -1040,6 +1049,201 @@ function excluirCurso(id) {
   if (!confirm('Excluir este curso?')) return;
   db.ref('doremi/cursos/'+id).remove();
   fecharModal('modal-curso'); toast('Curso excluído');
+}
+
+
+// ══════════════════════════════════
+// GERAÇÃO DE CONTRATO
+// ══════════════════════════════════
+function abrirModalContrato(alunoId) {
+  const a = Object.values(state.alunos).find(x => x.id === alunoId);
+  if (!a) return;
+  
+  const m = document.createElement('div');
+  m.className = 'modal-overlay contrato-modal'; m.id = 'modal-contrato';
+  m.innerHTML = `<div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">Gerar Contrato — ${a.nome}</span>
+      <button class="modal-close" onclick="fecharModal('modal-contrato')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px">
+        Preencha os dados complementares. Os campos do cadastro já foram preenchidos automaticamente.
+      </p>
+      <div class="form-grid">
+        <div class="form-group full" style="grid-column:1/-1">
+          <label>Nome do contratante</label>
+          <input type="text" id="ct-nome" value="${a.responsavel || a.nome}" placeholder="Nome completo do responsável/contratante">
+        </div>
+        <div class="form-group">
+          <label>CPF do contratante</label>
+          <input type="text" id="ct-cpf" value="${a.cpf||''}" placeholder="000.000.000-00">
+        </div>
+        <div class="form-group">
+          <label>Dia de vencimento</label>
+          <input type="number" id="ct-dia" value="${a.dia||10}" min="1" max="31">
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Endereço completo</label>
+          <input type="text" id="ct-end" value="${a.endereco||''}" placeholder="Rua, nº, Bairro, Cidade/UF">
+        </div>
+        <div class="form-group">
+          <label>Valor mensalidade (R$)</label>
+          <input type="number" id="ct-valor" value="${a.valor||''}" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Valor por extenso</label>
+          <input type="text" id="ct-extenso" value="" placeholder="ex: cento e noventa e cinco reais">
+        </div>
+        <div class="form-group">
+          <label>Curso / Instrumento</label>
+          <input type="text" id="ct-curso" value="${a.instrumento||''}">
+        </div>
+        <div class="form-group">
+          <label>Professor</label>
+          <input type="text" id="ct-prof" value="${a.professor||''}">
+        </div>
+      </div>
+      <div id="contrato-status" style="margin-top:12px;font-size:12px;color:var(--text3)"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="fecharModal('modal-contrato')">Cancelar</button>
+      <button class="btn btn-docx" onclick="gerarContrato('${a.id}','docx')">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="white"><path d="M3 2h7l3 3v9H3z" stroke="white" stroke-width="1" fill="none"/><path d="M10 2v3h3" stroke="white" stroke-width="1" fill="none"/></svg>
+        Baixar .DOCX
+      </button>
+      <button class="btn btn-pdf" onclick="gerarContrato('${a.id}','pdf')">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="white"><path d="M3 2h7l3 3v9H3z" stroke="white" stroke-width="1" fill="none"/><path d="M10 2v3h3" stroke="white" stroke-width="1" fill="none"/><text x="5" y="11" font-size="5" fill="white" font-family="Arial">PDF</text></svg>
+        Baixar PDF
+      </button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if(e.target===m) fecharModal('modal-contrato'); });
+}
+
+function gerarContrato(alunoId, tipo) {
+  const a = Object.values(state.alunos).find(x => x.id === alunoId);
+  if (!a) return;
+
+  const dados = {
+    id: a.id,
+    nome: a.nome,
+    responsavel: document.getElementById('ct-nome').value.trim(),
+    cpf: document.getElementById('ct-cpf').value.trim(),
+    endereco: document.getElementById('ct-end').value.trim(),
+    valor: parseFloat(document.getElementById('ct-valor').value) || a.valor,
+    valorExtenso: document.getElementById('ct-extenso').value.trim(),
+    dia: document.getElementById('ct-dia').value,
+    instrumento: document.getElementById('ct-curso').value.trim(),
+    professor: document.getElementById('ct-prof').value.trim(),
+    tipo: tipo
+  };
+
+  // Salvar CPF e endereço no Firebase para próximas vezes
+  if (dados.cpf || dados.endereco) {
+    db.ref('doremi/alunos/' + alunoId).update({
+      cpf: dados.cpf,
+      endereco: dados.endereco
+    });
+  }
+
+  const status = document.getElementById('contrato-status');
+  status.innerHTML = '<span class="spinner"></span> Gerando contrato...';
+
+  // Call the server-side API to generate the contract
+  fetch('/api/contrato', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(dados)
+  })
+  .then(r => {
+    if (!r.ok) throw new Error('Erro no servidor');
+    return r.blob();
+  })
+  .then(blob => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Contrato_${dados.responsavel.replace(/\s+/g,'_')}.${tipo}`;
+    link.click();
+    URL.revokeObjectURL(url);
+    status.innerHTML = '<span style="color:var(--green)">✓ Contrato gerado com sucesso!</span>';
+  })
+  .catch(() => {
+    // Fallback: generate client-side using template
+    gerarContratoClientSide(dados, tipo);
+  });
+}
+
+function gerarContratoClientSide(dados, tipo) {
+  const status = document.getElementById('contrato-status');
+  
+  // Generate contract as HTML and convert to downloadable format
+  const nomeContratante = dados.responsavel || dados.nome;
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const hoje = new Date();
+  const dataAssinatura = `${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
+  const valor = dados.valor ? `R$ ${Number(dados.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}` : 'R$ _______';
+  const diaExtenso = {'5':'cinco','10':'dez','15':'quinze','20':'vinte','25':'vinte e cinco'}[String(dados.dia)] || dados.dia;
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+body{font-family:Arial,sans-serif;font-size:12pt;line-height:1.6;margin:3cm 2.5cm 2cm 3cm;color:#000}
+h1{font-size:13pt;text-align:center;margin-bottom:1.5em}
+.clausula{font-weight:bold;margin-top:1.2em;margin-bottom:0.3em}
+p{text-align:justify;margin:0.4em 0}
+.assinaturas{margin-top:3em}
+.linha-assinatura{margin-top:2.5em}
+</style></head><body>
+<h1>CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS</h1>
+<p>Pelo presente instrumento particular de contrato de prestação de serviços educacionais, de um lado a <strong>ESCOLA DO RÉ MI</strong>, inscrita no CNPJ sob o nº 35.483.341/0001-40, neste ato representada por seu responsável Sr. Lucas de Souza, doravante denominada <strong>CONTRATADA</strong>; e, de outro lado, <strong>${nomeContratante}</strong>, inscrito(a) no CPF nº <strong>${dados.cpf||'___.___.___-__'}</strong>, residente na ${dados.endereco||'____________________________________________'}, doravante denominado(a) <strong>CONTRATANTE</strong>; têm entre si, de forma justa e acordada, o presente Contrato de Prestação de Serviços, que se regerá pelas cláusulas e condições seguintes:</p>
+<p class="clausula">CLÁUSULA 1ª – DO OBJETO</p>
+<p>O presente contrato tem por objeto a prestação de serviços educacionais referentes ao curso de <strong>${dados.instrumento||'_______________'}</strong> ministrado pela CONTRATADA à CONTRATANTE.</p>
+<p class="clausula">CLÁUSULA 2ª – DAS AULAS E DURAÇÃO</p>
+<p>As aulas serão ministradas 1 (uma) vez por semana, conforme cronograma previamente estabelecido entre as partes. Cada aula terá duração padrão conforme o plano pedagógico da CONTRATADA.</p>
+<p class="clausula">CLÁUSULA 3ª – DO PAGAMENTO</p>
+<p>O valor mensal devido pela CONTRATANTE à CONTRATADA será de <strong>${valor} ${dados.valorExtenso ? '('+dados.valorExtenso+')' : ''}</strong>, devendo o pagamento ocorrer até o dia <strong>${dados.dia} (${diaExtenso})</strong> de cada mês, por meio de PIX, cartão de crédito (sujeito a taxas) ou em espécie, utilizando a chave CNPJ: <strong>35.483.341/0001-40</strong>.</p>
+<p class="clausula">CLÁUSULA 4ª – DAS FALTAS E REPOSIÇÕES</p>
+<p>A CONTRATANTE deverá comunicar a ausência com antecedência mínima de 24 (vinte e quatro) horas. O não comparecimento sem aviso prévio não dará direito a reposição ou desconto. Em caso de falta do professor, a CONTRATADA se compromete a repor a aula no prazo máximo de 30 (trinta) dias.</p>
+<p class="clausula">CLÁUSULA 5ª – DO REAJUSTE</p>
+<p>O valor da mensalidade poderá sofrer reajuste anual de até 7% (sete por cento), a partir de 01 de janeiro de 2027, com base nos custos operacionais e índices inflacionários vigentes.</p>
+<p class="clausula">CLÁUSULA 6ª – DO USO DE IMAGEM</p>
+<p>A CONTRATANTE autoriza, de forma gratuita, o uso de imagem e voz da aluna em materiais de divulgação, redes sociais e campanhas institucionais da Escola Do Ré Mi, sem ônus ou vínculo trabalhista.</p>
+<p class="clausula">CLÁUSULA 7ª – DA RESCISÃO CONTRATUAL</p>
+<p>O presente contrato poderá ser rescindido por qualquer das partes mediante aviso prévio de 30 (trinta) dias. Em caso de desistência sem aviso prévio, será cobrada a mensalidade integral referente ao mês vigente.</p>
+<p class="clausula">CLÁUSULA 8ª – DOS FERIADOS</p>
+<p>Não haverá aulas nos feriados nacionais, estaduais ou municipais. As mensalidades serão cobradas normalmente nesses períodos, uma vez que o valor contratado refere-se à garantia de vaga, matrícula e planejamento pedagógico mensal, não estando vinculado a número específico de aulas, não sendo devidas reposições.</p>
+<p class="clausula">CLÁUSULA 9ª – DAS DISPOSIÇÕES GERAIS</p>
+<p>O não comparecimento às aulas, sem aviso prévio, não enseja direito à reposição.</p>
+<p>Durante os períodos de férias escolares ou recessos previamente comunicados pela instituição, as aulas poderão ser suspensas, permanecendo, contudo, a obrigatoriedade do pagamento da mensalidade, a qual se destina à garantia da vaga e da matrícula do aluno para o período letivo vigente.</p>
+<p>Na hipótese de o contratante optar pelo cancelamento das aulas durante os períodos de férias ou recessos, a vaga não será preservada, sendo que, para o retorno às atividades, o aluno deverá efetuar o pagamento de taxa de rematrícula, além do valor integral da mensalidade vigente à época da retomada das aulas, conforme disponibilidade de vagas.</p>
+<p>E, por estarem as partes de pleno acordo com o disposto neste instrumento, firmam o presente contrato em duas vias de igual teor e forma, para que produza seus jurídicos e legais efeitos.</p>
+<p style="margin-top:1.5em">Novo Hamburgo/RS, ${dataAssinatura}.</p>
+<div class="assinaturas">
+<div class="linha-assinatura">_________________________________________<br><strong>Lucas de Souza</strong><br>Responsável – Escola Do Ré Mi</div>
+<div class="linha-assinatura">_________________________________________<br><strong>${nomeContratante}</strong><br>Contratante</div>
+</div>
+</body></html>`;
+
+  if (tipo === 'pdf') {
+    // Open print dialog for PDF
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.onload = () => { win.print(); };
+    status.innerHTML = '<span style="color:var(--green)">✓ Use Ctrl+P → Salvar como PDF para baixar.</span>';
+  } else {
+    // Download as HTML (opens in Word)
+    const blob = new Blob([html], {type: 'application/msword'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Contrato_${nomeContratante.replace(/\s+/g,'_')}.doc`;
+    link.click();
+    URL.revokeObjectURL(url);
+    status.innerHTML = '<span style="color:var(--green)">✓ Contrato baixado! Abra no Word para editar.</span>';
+  }
 }
 
 </script>
