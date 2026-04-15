@@ -454,14 +454,6 @@ function iniciarSync() {
   db.ref('doremi/professores').on('value', snap => {
     state.professores = snap.val() || {};
     if (currentPage) renderPage(currentPage);
-  });
-  db.ref('doremi/cursos').on('value', snap => {
-    state.cursos = snap.val() || {};
-    if (currentPage) renderPage(currentPage);
-  });
-  db.ref('doremi/professores').on('value', snap => {
-    state.professores = snap.val() || {};
-    if (currentPage) renderPage(currentPage);
     updateNavCounts();
   });
   db.ref('doremi/cursos').on('value', snap => {
@@ -579,9 +571,9 @@ function updateNavCounts() {
   const el = document.getElementById('nav-count-alunos');
   if (el) el.textContent = getAtivos().length;
   const ep = document.getElementById('nav-count-profs');
-  if (ep) ep.textContent = Object.values(state.professores).filter(p=>p.status==='Ativo').length;
+  if (ep) ep.textContent = Object.values(state.professores).length;
   const ec = document.getElementById('nav-count-cursos');
-  if (ec) ec.textContent = Object.values(state.cursos).filter(c=>c.status==='Ativo').length;
+  if (ec) ec.textContent = Object.values(state.cursos).length;
 }
 
 // ══════════════════════════════════
@@ -725,7 +717,7 @@ function abrirModalAluno(id) {
       <div class="form-group"><label>Professor</label>
         <select id="f-prof">
           <option value="">— Selecionar professor —</option>
-          ${Object.values(state.professores).filter(p=>p.status==='Ativo').sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')).map(p=>`<option value="${p.nome}" ${a?.professor===p.nome?'selected':''}>${p.nome}</option>`).join('')}
+          ${Object.values(state.professores).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')).map(p=>`<option value="${p.nome}" ${a?.professor===p.nome?'selected':''}>${p.nome}</option>`).join('')}
           ${a?.professor && !Object.values(state.professores).find(p=>p.nome===a.professor) ? `<option value="${a.professor}" selected>${a.professor} (manual)</option>` : ''}
         </select>
       </div>
@@ -911,169 +903,6 @@ function renderFinanceiro(c) {
     </div></div>
   </div>`;
 }
-
-// ══════════════════════════════════
-// PÁGINA: PROFESSORES
-// ══════════════════════════════════
-function renderProfessores(c, tb) {
-  if (tb) tb.innerHTML = '<span class="sync-badge"><span class="sync-dot"></span>Sincronizado</span><button class="btn btn-primary" onclick="abrirModalProfessor(null)">+ Novo professor</button>';
-  const lista = Object.values(state.professores).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{sensitivity:'base'}));
-  const ativos = lista.filter(p=>p.status==='Ativo');
-  c.innerHTML = `
-  ${searchBar('Pesquisar professor...', 'pesquisarProfs')}
-  <div class="metrics-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px">
-    <div class="metric"><div class="metric-label">Professores ativos</div><div class="metric-inner"><div class="metric-accent" style="background:var(--teal)"></div><div class="metric-value">${ativos.length}</div></div></div>
-    <div class="metric"><div class="metric-label">Total de alunos</div><div class="metric-inner"><div class="metric-accent" style="background:var(--blue)"></div><div class="metric-value">${getAtivos().length}</div></div></div>
-    <div class="metric"><div class="metric-label">Média alunos/prof</div><div class="metric-inner"><div class="metric-accent" style="background:var(--amber)"></div><div class="metric-value">${ativos.length>0?Math.round(getAtivos().length/ativos.length):0}</div></div></div>
-  </div>
-  <div class="card" style="padding:0"><div class="table-wrap"><table>
-    <thead><tr><th></th><th>Nome</th><th>Telefone</th><th>Alunos vinculados</th><th>Status</th><th></th></tr></thead>
-    <tbody id="profs-tbody"></tbody>
-  </table></div></div>`;
-  renderProfsTabela(filterBySearch(lista, searchQuery));
-}
-function pesquisarProfs(q) { searchQuery=q; renderProfessores(document.getElementById('content')); }
-function renderProfsTabela(lista) {
-  const tbody = document.getElementById('profs-tbody');
-  if (!tbody) return;
-  if (!lista.length) { tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">Nenhum professor cadastrado</div></td></tr>'; return; }
-  tbody.innerHTML = lista.map(p => {
-    const vinculados = getAtivos().filter(a => a.professor === p.nome);
-    return `<tr>
-      <td><div class="avatar" style="background:var(--teal-light);color:var(--teal)">${initials(p.nome)}</div></td>
-      <td><div style="font-weight:500">${p.nome}</div></td>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)">${p.tel||'—'}</td>
-      <td>
-        <div style="display:flex;flex-wrap:wrap;gap:4px">
-          ${vinculados.length ? vinculados.map(a=>`<span class="chip">${a.nome}</span>`).join('') : '<span style="color:var(--text3);font-size:12px">Nenhum</span>'}
-        </div>
-      </td>
-      <td><span class="badge badge-${p.status==='Ativo'?'ativo':'inativo'}">${p.status}</span></td>
-      <td><button class="btn btn-sm" onclick="abrirModalProfessor('${p.id}')">Editar</button></td>
-    </tr>`;
-  }).join('');
-}
-function abrirModalProfessor(id) {
-  const p = id ? Object.values(state.professores).find(x=>x.id===id) : null;
-  const m = document.createElement('div');
-  m.className='modal-overlay'; m.id='modal-prof';
-  m.innerHTML=`<div class="modal">
-    <div class="modal-head"><span class="modal-title">${p?'Editar professor':'Novo professor'}</span><button class="modal-close" onclick="fecharModal('modal-prof')">×</button></div>
-    <div class="modal-body"><div class="form-grid">
-      <div class="form-group" style="grid-column:1/-1"><label>Nome completo</label><input type="text" id="fp-nome" value="${p?.nome||''}" placeholder="Nome do professor"></div>
-      <div class="form-group" style="grid-column:1/-1"><label>Telefone (WhatsApp)</label><input type="text" id="fp-tel" value="${p?.tel||''}" placeholder="5551999990000"></div>
-      <div class="form-group" style="grid-column:1/-1"><label>Status</label>
-        <select id="fp-status">${['Ativo','Inativo'].map(s=>`<option ${p?.status===s?'selected':''}>${s}</option>`).join('')}</select>
-      </div>
-    </div></div>
-    <div class="modal-foot">
-      ${p?`<button class="btn" style="margin-right:auto;color:var(--red);border-color:var(--red)" onclick="excluirProfessor('${p.id}')">Excluir</button>`:''}
-      <button class="btn" onclick="fecharModal('modal-prof')">Cancelar</button>
-      <button class="btn btn-primary" onclick="salvarProfessor('${p?.id||''}')">Salvar</button>
-    </div>
-  </div>`;
-  document.body.appendChild(m);
-  m.addEventListener('click', e=>{ if(e.target===m) fecharModal('modal-prof'); });
-}
-function salvarProfessor(id) {
-  const nome = document.getElementById('fp-nome').value.trim();
-  if (!nome) { toast('Nome obrigatório'); return; }
-  const obj = { nome, tel: document.getElementById('fp-tel').value.trim().replace(/\D/g,''), status: document.getElementById('fp-status').value };
-  if (id) {
-    obj.id = id;
-    db.ref('doremi/professores/'+id).update(obj).then(()=>{ toast('Professor atualizado!'); fecharModal('modal-prof'); });
-  } else {
-    const key = db.ref('doremi/professores').push().key;
-    obj.id = key;
-    db.ref('doremi/professores/'+key).set(obj).then(()=>{ toast('Professor cadastrado!'); fecharModal('modal-prof'); });
-  }
-}
-function excluirProfessor(id) {
-  if (!confirm('Excluir este professor?')) return;
-  db.ref('doremi/professores/'+id).remove();
-  fecharModal('modal-prof'); toast('Professor excluído');
-}
-
-// ══════════════════════════════════
-// PÁGINA: CURSOS
-// ══════════════════════════════════
-function renderCursos(c, tb) {
-  if (tb) tb.innerHTML = '<span class="sync-badge"><span class="sync-dot"></span>Sincronizado</span><button class="btn btn-primary" onclick="abrirModalCurso(null)">+ Novo curso</button>';
-  const lista = Object.values(state.cursos).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{sensitivity:'base'}));
-  c.innerHTML = `
-  ${searchBar('Pesquisar curso...', 'pesquisarCursos')}
-  <div class="metrics-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px">
-    <div class="metric"><div class="metric-label">Cursos ativos</div><div class="metric-inner"><div class="metric-accent" style="background:var(--teal)"></div><div class="metric-value">${lista.filter(c=>c.status==='Ativo').length}</div></div></div>
-    <div class="metric"><div class="metric-label">Total de matrículas</div><div class="metric-inner"><div class="metric-accent" style="background:var(--blue)"></div><div class="metric-value">${getAtivos().length}</div></div></div>
-    <div class="metric"><div class="metric-label">Total de cursos</div><div class="metric-inner"><div class="metric-accent" style="background:var(--amber)"></div><div class="metric-value">${lista.length}</div></div></div>
-  </div>
-  <div class="card" style="padding:0"><div class="table-wrap"><table>
-    <thead><tr><th></th><th>Nome do Curso</th><th>Alunos matriculados</th><th>Status</th><th></th></tr></thead>
-    <tbody id="cursos-tbody"></tbody>
-  </table></div></div>`;
-  renderCursosTabela(filterBySearch(lista, searchQuery));
-}
-function pesquisarCursos(q) { searchQuery=q; renderCursos(document.getElementById('content')); }
-function renderCursosTabela(lista) {
-  const tbody = document.getElementById('cursos-tbody');
-  if (!tbody) return;
-  if (!lista.length) { tbody.innerHTML='<tr><td colspan="5"><div class="empty-state">Nenhum curso cadastrado</div></td></tr>'; return; }
-  tbody.innerHTML = lista.map(curso => {
-    const matriculados = getAtivos().filter(a => a.instrumento === curso.nome);
-    return `<tr>
-      <td><div class="avatar" style="background:var(--amber-light);color:var(--amber)">${curso.nome[0].toUpperCase()}</div></td>
-      <td><div style="font-weight:500">${curso.nome}</div></td>
-      <td>
-        <div style="display:flex;flex-wrap:wrap;gap:4px">
-          ${matriculados.length ? matriculados.map(a=>`<span class="chip">${a.nome}</span>`).join('') : '<span style="color:var(--text3);font-size:12px">Nenhum</span>'}
-        </div>
-        <div style="font-size:11px;color:var(--text3);margin-top:3px">${matriculados.length} aluno(s)</div>
-      </td>
-      <td><span class="badge badge-${curso.status==='Ativo'?'ativo':'inativo'}">${curso.status}</span></td>
-      <td><button class="btn btn-sm" onclick="abrirModalCurso('${curso.id}')">Editar</button></td>
-    </tr>`;
-  }).join('');
-}
-function abrirModalCurso(id) {
-  const curso = id ? Object.values(state.cursos).find(x=>x.id===id) : null;
-  const m = document.createElement('div');
-  m.className='modal-overlay'; m.id='modal-curso';
-  m.innerHTML=`<div class="modal">
-    <div class="modal-head"><span class="modal-title">${curso?'Editar curso':'Novo curso'}</span><button class="modal-close" onclick="fecharModal('modal-curso')">×</button></div>
-    <div class="modal-body"><div class="form-grid">
-      <div class="form-group" style="grid-column:1/-1"><label>Nome do curso</label><input type="text" id="fc-nome" value="${curso?.nome||''}" placeholder="ex: Violão, Piano, Canto..."></div>
-      <div class="form-group" style="grid-column:1/-1"><label>Status</label>
-        <select id="fc-status">${['Ativo','Inativo'].map(s=>`<option ${curso?.status===s?'selected':''}>${s}</option>`).join('')}</select>
-      </div>
-    </div></div>
-    <div class="modal-foot">
-      ${curso?`<button class="btn" style="margin-right:auto;color:var(--red);border-color:var(--red)" onclick="excluirCurso('${curso.id}')">Excluir</button>`:''}
-      <button class="btn" onclick="fecharModal('modal-curso')">Cancelar</button>
-      <button class="btn btn-primary" onclick="salvarCurso('${curso?.id||''}')">Salvar</button>
-    </div>
-  </div>`;
-  document.body.appendChild(m);
-  m.addEventListener('click', e=>{ if(e.target===m) fecharModal('modal-curso'); });
-}
-function salvarCurso(id) {
-  const nome = document.getElementById('fc-nome').value.trim();
-  if (!nome) { toast('Nome do curso obrigatório'); return; }
-  const obj = { nome, status: document.getElementById('fc-status').value };
-  if (id) {
-    obj.id = id;
-    db.ref('doremi/cursos/'+id).update(obj).then(()=>{ toast('Curso atualizado!'); fecharModal('modal-curso'); });
-  } else {
-    const key = db.ref('doremi/cursos').push().key;
-    obj.id = key;
-    db.ref('doremi/cursos/'+key).set(obj).then(()=>{ toast('Curso cadastrado!'); fecharModal('modal-curso'); });
-  }
-}
-function excluirCurso(id) {
-  if (!confirm('Excluir este curso?')) return;
-  db.ref('doremi/cursos/'+id).remove();
-  fecharModal('modal-curso'); toast('Curso excluído');
-}
-
 
 // ══════════════════════════════════
 // PÁGINA: PROFESSORES
