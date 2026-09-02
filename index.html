@@ -1160,11 +1160,11 @@ function abrirModalContrato(alunoId) {
         </div>
         <div class="form-group">
           <label>Valor mensalidade (R$)</label>
-          <input type="number" id="ct-valor" value="${a.valor||''}" step="0.01">
+          <input type="number" id="ct-valor" value="${a.valor||''}" step="0.01" oninput="atualizarExtenso()">
         </div>
         <div class="form-group">
           <label>Valor por extenso</label>
-          <input type="text" id="ct-extenso" value="" placeholder="ex: cento e noventa e cinco reais">
+          <input type="text" id="ct-extenso" value="" placeholder="Gerado automaticamente, pode editar se quiser">
         </div>
         <div class="form-group">
           <label>Curso / Instrumento</label>
@@ -1191,6 +1191,58 @@ function abrirModalContrato(alunoId) {
   </div>`;
   document.body.appendChild(m);
   m.addEventListener('click', e => { if(e.target===m) fecharModal('modal-contrato'); });
+  atualizarExtenso();
+}
+
+function numeroPorExtenso999(n) {
+  const un = ['zero','um','dois','três','quatro','cinco','seis','sete','oito','nove'];
+  const teens = ['dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  const tens = ['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  const huns = ['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  if (n === 0) return '';
+  if (n === 100) return 'cem';
+  const h = Math.floor(n / 100), r = n % 100;
+  const parts = [];
+  if (h > 0) parts.push(huns[h]);
+  if (r > 0) {
+    if (r < 10) parts.push(un[r]);
+    else if (r < 20) parts.push(teens[r - 10]);
+    else {
+      const t = Math.floor(r / 10), u = r % 10;
+      parts.push(u > 0 ? `${tens[t]} e ${un[u]}` : tens[t]);
+    }
+  }
+  return parts.join(' e ');
+}
+
+function numeroPorExtenso(n) {
+  n = Math.floor(n);
+  if (n === 0) return 'zero';
+  if (n < 1000) return numeroPorExtenso999(n);
+  const milhar = Math.floor(n / 1000);
+  const resto = n % 1000;
+  const milharStr = milhar === 1 ? 'mil' : `${numeroPorExtenso999(milhar)} mil`;
+  if (resto === 0) return milharStr;
+  return `${milharStr} e ${numeroPorExtenso999(resto)}`;
+}
+
+function valorPorExtenso(valor) {
+  valor = Number(valor) || 0;
+  const reais = Math.floor(valor);
+  const centavos = Math.round((valor - reais) * 100);
+  let str = `${numeroPorExtenso(reais)} ${reais === 1 ? 'real' : 'reais'}`;
+  if (centavos > 0) {
+    str += ` e ${numeroPorExtenso(centavos)} ${centavos === 1 ? 'centavo' : 'centavos'}`;
+  }
+  return str;
+}
+
+function atualizarExtenso() {
+  const valorInput = document.getElementById('ct-valor');
+  const extensoInput = document.getElementById('ct-extenso');
+  if (!valorInput || !extensoInput) return;
+  const v = parseFloat(valorInput.value);
+  extensoInput.value = (!isNaN(v) && v > 0) ? valorPorExtenso(v) : '';
 }
 
 function gerarContrato(alunoId, tipo) {
@@ -1307,7 +1359,7 @@ function gerarContratoClientSide(dados, tipo) {
             // Preâmbulo
             corpo([
               n('Pelo presente instrumento particular de contrato de prestação de serviços educacionais, de um lado a '),
-              b('ESCOLA DO RÉ MI'),
+              b('DÓ-RÉ-MI EDUCAÇÃO MUSICAL'),
               n(', inscrita no CNPJ sob o nº 35.483.341/0001-40, neste ato representada por seu responsável Sr. Lucas de Souza, doravante denominada '),
               b('CONTRATADA'),
               n('; e, de outro lado, '),
@@ -1342,22 +1394,25 @@ function gerarContratoClientSide(dados, tipo) {
               n('.'),
             ]),
 
-            clausula('CLÁUSULA 4ª – DAS FALTAS E REPOSIÇÕES'),
+            clausula('CLÁUSULA 4ª – DA MULTA POR ATRASO'),
+            corpo([n('Caso a mensalidade não seja paga até a data estabelecida na Cláusula 3ª, incidirá multa de 2% (dois por cento) sobre o valor devido, acrescida de juros de 1% (um por cento) ao mês, calculados proporcionalmente aos dias de atraso, além da correção monetária pelo índice oficial vigente, sem prejuízo das demais medidas cabíveis para a cobrança do débito.')]),
+
+            clausula('CLÁUSULA 5ª – DAS FALTAS E REPOSIÇÕES'),
             corpo([n('A CONTRATANTE deverá comunicar a ausência com antecedência mínima de 24 (vinte e quatro) horas. O não comparecimento sem aviso prévio não dará direito a reposição ou desconto. Em caso de falta do professor, a CONTRATADA se compromete a repor a aula no prazo máximo de 30 (trinta) dias.')]),
 
-            clausula('CLÁUSULA 5ª – DO REAJUSTE'),
+            clausula('CLÁUSULA 6ª – DO REAJUSTE'),
             corpo([n('O valor da mensalidade poderá sofrer reajuste anual de até 7% (sete por cento), a partir de 01 de janeiro de 2027, com base nos custos operacionais e índices inflacionários vigentes.')]),
 
-            clausula('CLÁUSULA 6ª – DO USO DE IMAGEM'),
-            corpo([n('A CONTRATANTE autoriza, de forma gratuita, o uso de imagem e voz da aluna em materiais de divulgação, redes sociais e campanhas institucionais da Escola Do Ré Mi, sem ônus ou vínculo trabalhista.')]),
+            clausula('CLÁUSULA 7ª – DO USO DE IMAGEM'),
+            corpo([n('A CONTRATANTE autoriza, de forma gratuita, o uso de imagem e voz da aluna em materiais de divulgação, redes sociais e campanhas institucionais da Dó-Ré-Mi Educação Musical, sem ônus ou vínculo trabalhista.')]),
 
-            clausula('CLÁUSULA 7ª – DA RESCISÃO CONTRATUAL'),
+            clausula('CLÁUSULA 8ª – DA RESCISÃO CONTRATUAL'),
             corpo([n('O presente contrato poderá ser rescindido por qualquer das partes mediante aviso prévio de 30 (trinta) dias. Em caso de desistência sem aviso prévio, será cobrada a mensalidade integral referente ao mês vigente.')]),
 
-            clausula('CLÁUSULA 8ª – DOS FERIADOS'),
+            clausula('CLÁUSULA 9ª – DOS FERIADOS'),
             corpo([n('Não haverá aulas nos feriados nacionais, estaduais ou municipais. As mensalidades serão cobradas normalmente nesses períodos, uma vez que o valor contratado refere-se à garantia de vaga, matrícula e planejamento pedagógico mensal, não estando vinculado a número específico de aulas, não sendo devidas reposições.')]),
 
-            clausula('CLÁUSULA 9ª – DAS DISPOSIÇÕES GERAIS'),
+            clausula('CLÁUSULA 10ª – DAS DISPOSIÇÕES GERAIS'),
             corpo([n('O não comparecimento às aulas, sem aviso prévio, não enseja direito à reposição.')]),
             corpo([n('Durante os períodos de férias escolares ou recessos previamente comunicados pela instituição, as aulas poderão ser suspensas, permanecendo, contudo, a obrigatoriedade do pagamento da mensalidade, a qual se destina à garantia da vaga e da matrícula do aluno para o período letivo vigente.')]),
             corpo([n('Na hipótese de o contratante optar pelo cancelamento das aulas durante os períodos de férias ou recessos, a vaga não será preservada, sendo que, para o retorno às atividades, o aluno deverá efetuar o pagamento de taxa de rematrícula, além do valor integral da mensalidade vigente à época da retomada das aulas, conforme disponibilidade de vagas.')]),
@@ -1371,7 +1426,7 @@ function gerarContratoClientSide(dados, tipo) {
             // Assinatura CONTRATADA
             new Paragraph({ children: [n('_________________________________________')], spacing: { before: 0, after: 80 } }),
             new Paragraph({ children: [b('Lucas de Souza')], spacing: { before: 0, after: 80 } }),
-            new Paragraph({ children: [n('Responsável – Escola Do Ré Mi')], spacing: { before: 0, after: 560 } }),
+            new Paragraph({ children: [n('Responsável – Dó-Ré-Mi Educação Musical')], spacing: { before: 0, after: 560 } }),
 
             // Assinatura CONTRATANTE
             new Paragraph({ children: [n('_________________________________________')], spacing: { before: 0, after: 80 } }),
@@ -1413,31 +1468,33 @@ function gerarPDF(dados, nomeContratante, dataAssinatura, valorFmt, diaExtenso, 
   .linha{margin-top:2.5em;border-top:1px solid #000;width:60%;padding-top:4px}
 </style></head><body>
 <h1>CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS</h1>
-<p>Pelo presente instrumento particular de contrato de prestação de serviços educacionais, de um lado a <strong>ESCOLA DO RÉ MI</strong>, inscrita no CNPJ sob o nº 35.483.341/0001-40, neste ato representada por seu responsável Sr. Lucas de Souza, doravante denominada <strong>CONTRATADA</strong>; e, de outro lado, <strong>${nomeContratante}</strong>, inscrito(a) no CPF nº <strong>${dados.cpf||'___.___.___-__'}</strong>, residente na ${dados.endereco||'____________________________________________'}, doravante denominado(a) <strong>CONTRATANTE</strong>; têm entre si, de forma justa e acordada, o presente Contrato de Prestação de Serviços, que se regerá pelas cláusulas e condições seguintes:</p>
+<p>Pelo presente instrumento particular de contrato de prestação de serviços educacionais, de um lado a <strong>DÓ-RÉ-MI EDUCAÇÃO MUSICAL</strong>, inscrita no CNPJ sob o nº 35.483.341/0001-40, neste ato representada por seu responsável Sr. Lucas de Souza, doravante denominada <strong>CONTRATADA</strong>; e, de outro lado, <strong>${nomeContratante}</strong>, inscrito(a) no CPF nº <strong>${dados.cpf||'___.___.___-__'}</strong>, residente na ${dados.endereco||'____________________________________________'}, doravante denominado(a) <strong>CONTRATANTE</strong>; têm entre si, de forma justa e acordada, o presente Contrato de Prestação de Serviços, que se regerá pelas cláusulas e condições seguintes:</p>
 <p class="cl">CLÁUSULA 1ª – DO OBJETO</p>
 <p>O presente contrato tem por objeto a prestação de serviços educacionais referentes ao curso de <strong>${dados.instrumento||'_______________'}</strong> ministrado pela CONTRATADA à CONTRATANTE.</p>
 <p class="cl">CLÁUSULA 2ª – DAS AULAS E DURAÇÃO</p>
 <p>As aulas serão ministradas 1 (uma) vez por semana, conforme cronograma previamente estabelecido entre as partes. Cada aula terá duração padrão conforme o plano pedagógico da CONTRATADA.</p>
 <p class="cl">CLÁUSULA 3ª – DO PAGAMENTO</p>
 <p>O valor mensal devido pela CONTRATANTE à CONTRATADA será de <strong>${valorFmt} ${valorExtensoTxt}</strong>, devendo o pagamento ocorrer até o dia <strong>${dados.dia} (${diaExtenso})</strong> de cada mês, por meio de PIX, cartão de crédito (sujeito a taxas) ou em espécie, utilizando a chave CNPJ: <strong>35.483.341/0001-40</strong>.</p>
-<p class="cl">CLÁUSULA 4ª – DAS FALTAS E REPOSIÇÕES</p>
+<p class="cl">CLÁUSULA 4ª – DA MULTA POR ATRASO</p>
+<p>Caso a mensalidade não seja paga até a data estabelecida na Cláusula 3ª, incidirá multa de 2% (dois por cento) sobre o valor devido, acrescida de juros de 1% (um por cento) ao mês, calculados proporcionalmente aos dias de atraso, além da correção monetária pelo índice oficial vigente, sem prejuízo das demais medidas cabíveis para a cobrança do débito.</p>
+<p class="cl">CLÁUSULA 5ª – DAS FALTAS E REPOSIÇÕES</p>
 <p>A CONTRATANTE deverá comunicar a ausência com antecedência mínima de 24 (vinte e quatro) horas. O não comparecimento sem aviso prévio não dará direito a reposição ou desconto. Em caso de falta do professor, a CONTRATADA se compromete a repor a aula no prazo máximo de 30 (trinta) dias.</p>
-<p class="cl">CLÁUSULA 5ª – DO REAJUSTE</p>
+<p class="cl">CLÁUSULA 6ª – DO REAJUSTE</p>
 <p>O valor da mensalidade poderá sofrer reajuste anual de até 7% (sete por cento), a partir de 01 de janeiro de 2027, com base nos custos operacionais e índices inflacionários vigentes.</p>
-<p class="cl">CLÁUSULA 6ª – DO USO DE IMAGEM</p>
-<p>A CONTRATANTE autoriza, de forma gratuita, o uso de imagem e voz da aluna em materiais de divulgação, redes sociais e campanhas institucionais da Escola Do Ré Mi, sem ônus ou vínculo trabalhista.</p>
-<p class="cl">CLÁUSULA 7ª – DA RESCISÃO CONTRATUAL</p>
+<p class="cl">CLÁUSULA 7ª – DO USO DE IMAGEM</p>
+<p>A CONTRATANTE autoriza, de forma gratuita, o uso de imagem e voz da aluna em materiais de divulgação, redes sociais e campanhas institucionais da Dó-Ré-Mi Educação Musical, sem ônus ou vínculo trabalhista.</p>
+<p class="cl">CLÁUSULA 8ª – DA RESCISÃO CONTRATUAL</p>
 <p>O presente contrato poderá ser rescindido por qualquer das partes mediante aviso prévio de 30 (trinta) dias. Em caso de desistência sem aviso prévio, será cobrada a mensalidade integral referente ao mês vigente.</p>
-<p class="cl">CLÁUSULA 8ª – DOS FERIADOS</p>
+<p class="cl">CLÁUSULA 9ª – DOS FERIADOS</p>
 <p>Não haverá aulas nos feriados nacionais, estaduais ou municipais. As mensalidades serão cobradas normalmente nesses períodos, uma vez que o valor contratado refere-se à garantia de vaga, matrícula e planejamento pedagógico mensal, não estando vinculado a número específico de aulas, não sendo devidas reposições.</p>
-<p class="cl">CLÁUSULA 9ª – DAS DISPOSIÇÕES GERAIS</p>
+<p class="cl">CLÁUSULA 10ª – DAS DISPOSIÇÕES GERAIS</p>
 <p>O não comparecimento às aulas, sem aviso prévio, não enseja direito à reposição.</p>
 <p>Durante os períodos de férias escolares ou recessos previamente comunicados pela instituição, as aulas poderão ser suspensas, permanecendo, contudo, a obrigatoriedade do pagamento da mensalidade, a qual se destina à garantia da vaga e da matrícula do aluno para o período letivo vigente.</p>
 <p>Na hipótese de o contratante optar pelo cancelamento das aulas durante os períodos de férias ou recessos, a vaga não será preservada, sendo que, para o retorno às atividades, o aluno deverá efetuar o pagamento de taxa de rematrícula, além do valor integral da mensalidade vigente à época da retomada das aulas, conforme disponibilidade de vagas.</p>
 <p style="margin-top:1.5em">E, por estarem as partes de pleno acordo com o disposto neste instrumento, firmam o presente contrato em duas vias de igual teor e forma, para que produza seus jurídicos e legais efeitos.</p>
 <p style="margin-top:1.5em">Novo Hamburgo/RS, ${dataAssinatura}.</p>
 <div class="assin">
-  <div class="linha"><strong>Lucas de Souza</strong><br>Responsável – Escola Do Ré Mi</div>
+  <div class="linha"><strong>Lucas de Souza</strong><br>Responsável – Dó-Ré-Mi Educação Musical</div>
   <div class="linha"><strong>${nomeContratante}</strong><br>Contratante</div>
 </div>
 </body></html>`;
